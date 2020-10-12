@@ -9,3 +9,5 @@ FileName = "\\126.0.0.42\代_共通\KAMBARA\ARRIVAL NOTICE\KSCA0118E\(Rev)KNSA11
      Msgbox(buf)
      n = GETDIR("C:\Users\utkn009\Downloads","*" + buf + "*")
      msgbox (n)
+
+     msgbox("コミットテスト")
