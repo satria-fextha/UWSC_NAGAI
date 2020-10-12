@@ -3,6 +3,7 @@ Call File.UWS
 
 ExpVslCode = COPY(PARAM_STR[0],20,9)
 ImpVslCode = COPY(PARAM_STR[0],20,8) + "E"
+start = Gettime()
 
 n = GETDIR("\\126.0.0.42\代_共通\KAMBARA\ARRIVAL NOTICE\" + ImpVslCode + "\", "*pdf*", TRUE, 0)
 FOR i = 0 TO (LENGTH(GETDIR_FILES) - 1)
@@ -11,3 +12,7 @@ FOR i = 0 TO (LENGTH(GETDIR_FILES) - 1)
 	To   = "\\126.0.0.42\代_共通\KAMBARA\ARRIVAL NOTICE\" + ImpVslCode + "\" + Copy(GETDIR_FILES[i], 1, Length(GETDIR_FILES[i]) - 4) + ".xlsx"
 	File.Move(From, To)
 NEXT
+
+stop = Gettime()
+TimeResult = stop - start
+Twitter.tweet(PARAM_STR[0] + "<#CR>A/NをExcelに変換しました<#CR>" + "所要時間:" + TimeResult)

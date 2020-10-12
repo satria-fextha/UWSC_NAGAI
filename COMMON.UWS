@@ -1,4 +1,5 @@
 Call ImageClass.UWS
+Call File.UWS
 
 Class PDF
   Procedure OpenByPDFViewer(folderPath,fileName)
@@ -78,9 +79,21 @@ Class PDF
   Fend
 
   Procedure ConvertExcel(FileName)
+     n = Pos("\",FileName,-1)
+     buf = Copy(FileName, n + 1, Length(FileName) - n - 4)
+     n = GETDIR("C:\Users\utkn009\Downloads","*" + buf + "*" + ".xlsx")
+     Ifb n > 0 then
+        FOR i = 0 TO (LENGTH(GETDIR_FILES) - 1)
+           File.TrashBox("C:\Users\utkn009\Downloads\" + GETDIR_FILES[i])
+        NEXT
+     Endif
+     //PDFファイルを選択にカーソルが載ってると画像が変わるため端に移動
+     x = 10
+     y = G_SCREEN_H / 2 
+     MMV(x, y)
      CHROME = EXEC("C:\Program Files (x86)\Google\Chrome\Application\chrome.exe")
      CHROMEID = GetID("Chrome",,-1)
-     CTRLWIN(CHROMEID,MAX)//画面の最大化
+     CTRLWIN(CHROMEID,MAX)
      URL="https://www.ilovepdf.com/ja/pdf_to_excel"
      SENDSTR(CHROMEID, URL)
      SCKEY(CHROMEID, VK_RETURN)
@@ -88,18 +101,24 @@ Class PDF
      Sleep(1)
      Image.MidClick("C:\Users\utkn009\Desktop\uwsc5302\画像\OOCL\BOOKING\Flag3.bmp")
      開くid=GetID("開く","#32770",-1)
+     SLEEP(2)
      SENDSTR(開くid,FileName)
-     SLEEP(1)
+     SLEEP()
      Clkitem(開くid,"開く",CLK_BTN)
      PDFをid=GetID("PDFをEXCELに瞬時に","Chrome_WidgetWin_1",-1)
      Image.MidClick("C:\Users\utkn009\Desktop\uwsc5302\画像\OOCL\BOOKING\EXCELに変換.bmp")
      ファイルid=GetID("ファイルのダウンロード | iLovePDF - Google Chrome","Chrome_WidgetWin_1",-1)
      Image.MidClick("C:\Users\utkn009\Desktop\uwsc5302\画像\OOCL\BOOKING\Flag4.bmp")
+     //「.pdf」とパスを抜いたファイル名を抽出
      n = Pos("\",FileName,-1)
-     buf = Copy(FileName, n+1, Length(FileName) - 4)
-     Msgbox(buf)
-     n = GETDIR("C:\Users\utkn009\Downloads","*" + buf + "*")
-     msgbox(n)
+     buf = Copy(FileName, n + 1, Length(FileName) - n - 4)
+     //ダウンロードフォルダにFileNameと同名の.xlsxが1つ以上あったらChromeを閉じる
+     n = GETDIR("C:\Users\utkn009\Downloads","*" + buf + "*" + ".xlsx")
+     While n = 0
+        n = GETDIR("C:\Users\utkn009\Downloads","*" + buf + "*" + ".xlsx")
+        sleep(1)
+     Wend
+     Ctrlwin(ファイルid,Close)
   Fend
 
 Endclass

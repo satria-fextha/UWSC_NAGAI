@@ -354,6 +354,7 @@ PROCEDURE ProcessTable(VslInfo)
                             "Arrival Notice Print by PDF",_
                             "VSL Add to DoSystem",_
                             "Arrival Notece Fax",_
+                            "Arrival PDF to Excel",_
                             "戻る")
   CASE SLCT_1
     Excel.QUIT
@@ -380,6 +381,9 @@ PROCEDURE ProcessTable(VslInfo)
     Excel.QUIT
     CALL KambaraArrivalFax.uws(VslInfo)
   CASE SLCT_9
+    Excel.QUIT
+    CALL KambaraArrPDFtoExcel.uws(VslInfo)
+  CASE SLCT_10
     Excel.QUIT
     ScheduleList()
   DEFAULT
