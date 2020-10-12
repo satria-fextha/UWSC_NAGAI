@@ -1,0 +1,3 @@
+EXCEL = CREATEOLEOBJ("Excel.Application")
+EXCEL.visible = True
+EXCEL.workbooks.open("\\126.0.0.42\業務_共通\OOCL 荷役実績表\BOOKING\BookingCheck.xlsm")

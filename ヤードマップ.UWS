@@ -1,0 +1,13 @@
+EXEC("C:\PortITSystems\ngi_vp\bin\YO_Main.exe CN")
+Logiid=GetID("Login","WindowsForms10.Window.8.app.0.378734a",-1)
+
+SENDSTR(Logiid, "NGI3023")
+SLEEP(0.5)
+SCKEY(Logiid, VK_RETURN)
+SENDSTR(Logiid, "3023")
+SCKEY(Logiid, VK_RETURN)
+SCKEY(Logiid, VK_RETURN)
+sleep(1.5)
+
+SITid=GetID("SIT CY Suite Main Menu","WindowsForms10.Window.8.app.0.378734a")
+SCKEY(SITid, VK_RETURN)

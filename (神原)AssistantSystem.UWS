@@ -1,0 +1,344 @@
+ScheduleList()
+
+
+//____________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________
+//*******************************************************************
+//ScheduleList()中のFORのヒント
+//12月は"00"になるので、IFB MONTH = "00"で処理
+//TargetMonth[1] = G_TIME_YY + CEIL((G_TIME_MM - 6) / 12 - 1) + "年" + REPLACE(FORMAT(((G_TIME_MM - 6) MOD 12), 2), " ", "0") + "月"
+//TargetMonth[2] = G_TIME_YY + CEIL((G_TIME_MM - 5) / 12 - 1) + "年" + REPLACE(FORMAT(((G_TIME_MM - 5) MOD 12), 2), " ", "0") + "月"
+//TargetMonth[3] = G_TIME_YY + CEIL((G_TIME_MM - 4) / 12 - 1) + "年" + REPLACE(FORMAT(((G_TIME_MM - 4) MOD 12), 2), " ", "0") + "月"
+//TargetMonth[4] = G_TIME_YY + CEIL((G_TIME_MM - 3) / 12 - 1) + "年" + REPLACE(FORMAT(((G_TIME_MM - 3) MOD 12), 2), " ", "0") + "月"
+//TargetMonth[5] = G_TIME_YY + CEIL((G_TIME_MM - 2) / 12 - 1) + "年" + REPLACE(FORMAT(((G_TIME_MM - 2) MOD 12), 2), " ", "0") + "月"
+//TargetMonth[6] = G_TIME_YY + CEIL((G_TIME_MM - 1) / 12 - 1) + "年" + REPLACE(FORMAT(((G_TIME_MM - 1) MOD 12), 2), " ", "0") + "月"
+//TargetMonth[7] = G_TIME_YY + CEIL((G_TIME_MM) / 12 - 1) + "年" + REPLACE(FORMAT(((G_TIME_MM + 0) MOD 12), 2), " ", "0") + "月"
+//TargetMonth[8] = G_TIME_YY + CEIL((G_TIME_MM + 1) / 12 - 1) + "年" + REPLACE(FORMAT(((G_TIME_MM + 1) MOD 12), 2), " ", "0") + "月"
+//TargetMonth[9] = G_TIME_YY + CEIL((G_TIME_MM + 2) / 12 - 1) + "年" + REPLACE(FORMAT(((G_TIME_MM + 2) MOD 12), 2), " ", "0") + "月"
+//TargetMonth[10] = G_TIME_YY + CEIL((G_TIME_MM + 3) / 12 - 1) + "年" + REPLACE(FORMAT(((G_TIME_MM + 3) MOD 12), 2), " ", "0") + "月"
+//TargetMonth[11] = G_TIME_YY + CEIL((G_TIME_MM + 4) / 12 - 1) + "年" + REPLACE(FORMAT(((G_TIME_MM + 4) MOD 12), 2), " ", "0") + "月"
+//TargetMonth[12] = G_TIME_YY + CEIL((G_TIME_MM + 5) / 12 - 1) + "年" + REPLACE(FORMAT(((G_TIME_MM + 5) MOD 12), 2), " ", "0") + "月"
+//TargetMonth[13] = G_TIME_YY + CEIL((G_TIME_MM + 6) / 12 - 1) + "年" + REPLACE(FORMAT(((G_TIME_MM + 6) MOD 12), 2), " ", "0") + "月"
+//*******************************************************************
+PROCEDURE ScheduleList()
+DIM TargetMonth[13]
+GETTIME()
+FOR i = 1 TO 13
+  YEAR = G_TIME_YY + CEIL((G_TIME_MM - (i - 7)) / 12 - 1)
+  MONTH = REPLACE(FORMAT(((G_TIME_MM - (i - 7)) MOD 12), 2), " ", "0")
+  IFB MONTH = "00" THEN
+    MONTH = "12"
+  ENDIF
+  TargetMonth[i] = YEAR + "-" + MONTH
+NEXT
+SELECT SLCTBOX(SLCT_BTN,0,"スケジュール",TargetMonth[13],_
+                                         TargetMonth[12],_
+                                         TargetMonth[11],_
+                                         TargetMonth[10],_
+                                         TargetMonth[9],_
+                                         TargetMonth[8],_
+                                         "**" + TargetMonth[7] + "**",_
+                                         TargetMonth[6],_
+                                         TargetMonth[5],_
+                                         TargetMonth[4],_
+                                         TargetMonth[3],_
+                                         TargetMonth[2],_
+                                         TargetMonth[1],_
+                                         "終了")
+CASE SLCT_1
+  SelectMonth = TargetMonth[13]
+  VslCheck(SelectMonth)
+CASE SLCT_2
+  SelectMonth = TargetMonth[12]
+  VslCheck(SelectMonth)
+CASE SLCT_3
+  SelectMonth = TargetMonth[11]
+  VslCheck(SelectMonth)
+CASE SLCT_4
+  SelectMonth = TargetMonth[10]
+  VslCheck(SelectMonth)
+CASE SLCT_5
+  SelectMonth = TargetMonth[9]
+  VslCheck(SelectMonth)
+CASE SLCT_6
+  SelectMonth = TargetMonth[8]
+  VslCheck(SelectMonth)
+CASE SLCT_7
+  SelectMonth = TargetMonth[7]
+  VslCheck(SelectMonth)
+CASE SLCT_8
+  SelectMonth = TargetMonth[6]
+  VslCheck(SelectMonth)
+CASE SLCT_9
+  SelectMonth = TargetMonth[5]
+  VslCheck(SelectMonth)
+CASE SLCT_10
+  SelectMonth = TargetMonth[4]
+  VslCheck(SelectMonth)
+CASE SLCT_11
+  SelectMonth = TargetMonth[3]
+  VslCheck(SelectMonth)
+CASE SLCT_12
+  SelectMonth = TargetMonth[2]
+  VslCheck(SelectMonth)
+CASE SLCT_13
+  SelectMonth = TargetMonth[1]
+  VslCheck(SelectMonth)
+CASE SLCT_14
+  EXCEL = CREATEOLEOBJ("Excel.Application")
+  Excel.QUIT
+　EXITEXIT
+DEFAULT
+  EXCEL = CREATEOLEOBJ("Excel.Application")
+  Excel.QUIT
+  //MSGBOX("エラー")
+SELEND
+FEND
+
+//____________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________
+PROCEDURE VslCheck(SelectMonth)
+  EXCEL = CREATEOLEOBJ("Excel.Application")
+  //EXCEL.visible = True
+  EXCEL.workbooks.open("\\126.0.0.42\代_共通\KAMBARA\VESSEL SCHEDULE\Book1.xlsx")
+  ws = Excel.ActiveWorkbook.Activesheet  
+  Count = 0
+  LastRow = ws.Cells(ws.Rows.Count, "A").End(-4162).Row
+  FOR i = 3 to LastRow
+    IFB POS(SelectMonth, ws.Cells(i,6).Value) <> 0 then
+      Count = Count + 1
+    ENDIF
+  NEXT
+  IFB Count <> 0 THEN
+    //MSGBOX(Count + "個あります")
+    Excel.QUIT
+    VslList(Count, SelectMonth)    
+　　Excel.QUIT
+  ELSE
+    MSGBOX("まだ予定船がありません")
+　　Excel.QUIT
+    ScheduleList()
+  ENDIF
+FEND
+
+//____________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________
+PROCEDURE VslList(Count, SelectMonth)
+  DIM VslArr[Count]
+  EXCEL = CREATEOLEOBJ("Excel.Application")
+  //EXCEL = GETACTIVEOLEOBJ("Excel.Application")
+  EXCEL.workbooks.open("\\126.0.0.42\代_共通\KAMBARA\VESSEL SCHEDULE\Book1.xlsx")
+  ws = Excel.ActiveWorkbook.Activesheet
+  LastRow = ws.Cells(ws.Rows.Count, "A").End(-4162).Row
+  j = 1
+  FOR i = 3 to LastRow
+    IFB POS(SelectMonth, ws.Cells(i,6).Value) <> 0 then
+      VslArr[j] = ws.Cells(i,6).Value + " / " + ws.Cells(i,1).Value
+      j = j + 1
+    ENDIF
+  NEXT
+  Excel.QUIT
+  SELECT Count
+    CASE 1
+      SELECT SLCTBOX(SLCT_BTN,0,"本船一覧",VslArr[1],"戻る")
+　　　  CASE SLCT_1
+          ProcessTable(VslArr[1])
+　　　  CASE SLCT_2
+          Excel.QUIT
+          ScheduleList()
+        DEFAULT
+          Excel.QUIT
+      SELEND
+    CASE 2
+      SELECT SLCTBOX(SLCT_BTN,0,"本船一覧",VslArr[1],VslArr[2],"戻る")
+　　　  CASE SLCT_1
+          ProcessTable(VslArr[1])
+　　　  CASE SLCT_2
+          ProcessTable(VslArr[2])
+　　　  CASE SLCT_3
+          Excel.QUIT
+          ScheduleList()
+        DEFAULT
+          Excel.QUIT
+      SELEND
+    CASE 3
+      SELECT SLCTBOX(SLCT_BTN,0,"本船一覧",VslArr[1],VslArr[2],VslArr[3],"戻る")
+　　　  CASE SLCT_1
+          ProcessTable(VslArr[1])
+　　　  CASE SLCT_2
+          ProcessTable(VslArr[2])
+　　　  CASE SLCT_3
+          ProcessTable(VslArr[3])
+　　　  CASE SLCT_4
+          Excel.QUIT
+          ScheduleList()
+        DEFAULT
+          Excel.QUIT
+      SELEND
+    CASE 4
+      SELECT SLCTBOX(SLCT_BTN,0,"本船一覧",VslArr[1],VslArr[2],VslArr[3],VslArr[4],"戻る")
+　　　  CASE SLCT_1
+          ProcessTable(VslArr[1])
+　　　  CASE SLCT_2
+          ProcessTable(VslArr[2])
+　　　  CASE SLCT_3
+          ProcessTable(VslArr[3])
+　　　  CASE SLCT_4
+          ProcessTable(VslArr[4])
+　　　  CASE SLCT_5
+          Excel.QUIT
+          ScheduleList()
+        DEFAULT
+          Excel.QUIT
+      SELEND
+    CASE 5
+      SELECT SLCTBOX(SLCT_BTN,0,"本船一覧",VslArr[1],VslArr[2],VslArr[3],VslArr[4],VslArr[5],"戻る")
+　　　  CASE SLCT_1
+          ProcessTable(VslArr[1])
+　　　  CASE SLCT_2
+          ProcessTable(VslArr[2])
+　　　  CASE SLCT_3
+          ProcessTable(VslArr[3])
+　　　  CASE SLCT_4
+          ProcessTable(VslArr[4])
+　　　  CASE SLCT_5
+          ProcessTable(VslArr[5])
+　　　  CASE SLCT_6
+          Excel.QUIT
+          ScheduleList()
+        DEFAULT
+          Excel.QUIT
+      SELEND
+    CASE 6
+      SELECT SLCTBOX(SLCT_BTN,0,"本船一覧",VslArr[1],VslArr[2],VslArr[3],VslArr[4],VslArr[5],VslArr[6],"戻る")
+　　　  CASE SLCT_1
+          ProcessTable(VslArr[1])
+　　　  CASE SLCT_2
+          ProcessTable(VslArr[2])
+　　　  CASE SLCT_3
+          ProcessTable(VslArr[3])
+　　　  CASE SLCT_4
+          ProcessTable(VslArr[4])
+　　　  CASE SLCT_5
+          ProcessTable(VslArr[5])
+　　　  CASE SLCT_6
+          ProcessTable(VslArr[6])
+　　　  CASE SLCT_7
+          Excel.QUIT
+          ScheduleList()
+        DEFAULT
+          Excel.QUIT
+      SELEND
+    CASE 7
+      SELECT SLCTBOX(SLCT_BTN,0,"本船一覧",VslArr[1],VslArr[2],VslArr[3],VslArr[4],VslArr[5],VslArr[6],VslArr[7],"戻る")
+　　　  CASE SLCT_1
+          ProcessTable(VslArr[1])
+　　　  CASE SLCT_2
+          ProcessTable(VslArr[2])
+　　　  CASE SLCT_3
+          ProcessTable(VslArr[3])
+　　　  CASE SLCT_4
+          ProcessTable(VslArr[4])
+　　　  CASE SLCT_5
+          ProcessTable(VslArr[5])
+　　　  CASE SLCT_6
+          ProcessTable(VslArr[6])
+　　　  CASE SLCT_7
+          ProcessTable(VslArr[7])
+　　　  CASE SLCT_8
+          Excel.QUIT
+          ScheduleList()
+        DEFAULT
+          Excel.QUIT
+      SELEND
+    CASE 8
+      SELECT SLCTBOX(SLCT_BTN,0,"本船一覧",VslArr[1],VslArr[2],VslArr[3],VslArr[4],VslArr[5],VslArr[6],VslArr[7],VslArr[8],"戻る")
+　　　  CASE SLCT_1
+          ProcessTable(VslArr[1])
+　　　  CASE SLCT_2
+          ProcessTable(VslArr[2])
+　　　  CASE SLCT_3
+          ProcessTable(VslArr[3])
+　　　  CASE SLCT_4
+          ProcessTable(VslArr[4])
+　　　  CASE SLCT_5
+          ProcessTable(VslArr[5])
+　　　  CASE SLCT_6
+          ProcessTable(VslArr[6])
+　　　  CASE SLCT_7
+          ProcessTable(VslArr[7])
+　　　  CASE SLCT_8
+          ProcessTable(VslArr[8])
+　　　  CASE SLCT_9
+          Excel.QUIT
+          ScheduleList()
+        DEFAULT
+          Excel.QUIT
+      SELEND
+    CASE 9
+      SELECT SLCTBOX(SLCT_BTN,0,"本船一覧",VslArr[1],VslArr[2],VslArr[3],VslArr[4],VslArr[5],VslArr[6],VslArr[7],VslArr[8],VslArr[9],"戻る")
+　　　  CASE SLCT_1
+          ProcessTable(VslArr[1])
+　　　  CASE SLCT_2
+          ProcessTable(VslArr[2])
+　　　  CASE SLCT_3
+          ProcessTable(VslArr[3])
+　　　  CASE SLCT_4
+          ProcessTable(VslArr[4])
+　　　  CASE SLCT_5
+          ProcessTable(VslArr[5])
+　　　  CASE SLCT_6
+          ProcessTable(VslArr[6])
+　　　  CASE SLCT_7
+          ProcessTable(VslArr[7])
+　　　  CASE SLCT_8
+          ProcessTable(VslArr[8])
+　　　  CASE SLCT_9
+          ProcessTable(VslArr[9])
+　　　  CASE SLCT_10
+          Excel.QUIT
+          ScheduleList()
+        DEFAULT
+          Excel.QUIT
+      SELEND
+    CASE 10
+      SELECT SLCTBOX(SLCT_BTN,0,"本船一覧",VslArr[1],VslArr[2],VslArr[3],VslArr[4],VslArr[5],VslArr[6],VslArr[7],VslArr[8],VslArr[9],VslArr[10],"戻る")
+　　　  CASE SLCT_1
+          ProcessTable(VslArr[1])
+　　　  CASE SLCT_2
+          ProcessTable(VslArr[2])
+　　　  CASE SLCT_3
+          ProcessTable(VslArr[3])
+　　　  CASE SLCT_4
+          ProcessTable(VslArr[4])
+　　　  CASE SLCT_5
+          ProcessTable(VslArr[5])
+　　　  CASE SLCT_6
+          ProcessTable(VslArr[6])
+　　　  CASE SLCT_7
+          ProcessTable(VslArr[7])
+　　　  CASE SLCT_8
+          ProcessTable(VslArr[8])
+　　　  CASE SLCT_9
+          ProcessTable(VslArr[9])
+　　　  CASE SLCT_10
+          ProcessTable(VslArr[10])
+　　　  CASE SLCT_11
+          Excel.QUIT
+          ScheduleList()
+        DEFAULT
+          Excel.QUIT
+      SELEND
+    DEFAULT
+      MSGBOX("10隻以上あります。コードを修正してください")
+      Excel.QUIT
+      EXITEXIT
+  SELEND
+FEND
+
+//____________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________
+PROCEDURE ProcessTable(VslInfo)
+  SELECT SLCTBOX(SLCT_BTN,0,"何しますか？？<#CR><#CR>対象船:" + VslInfo,"輸入マニュフェスト出力","戻る")
+  CASE SLCT_1
+    CALL KambaraManifestPrint.uws(VslInfo)
+  CASE SLCT_2
+    ScheduleList()
+  SELEND
+FEND

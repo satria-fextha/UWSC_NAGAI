@@ -1,0 +1,60 @@
+Class OPUS
+    procedure OpenTab()
+        //---既存のウィンドウからOPUSを検索
+        FUKIDASI("IE & OPUS 検索中【From:COMMON_OPUS】")
+        x = 10
+        y = G_SCREEN_H / 2 // 画面の高さの半分
+        MMV(x, y)
+        BTN(LEFT, CLICK)
+        For i = 0 To GetAllWin() - 1
+            IF POS("Internet Explorer",Status(ALL_WIN_ID[i], ST_TITLE)) > 0 then
+                ID = GetID(Status(ALL_WIN_ID[i], ST_TITLE),"IEFrame")
+                Sleep(0.8)
+                CTRLWIN(ID, SHOW)
+                Sleep(0.8)
+                CTRLWIN(ID, MAX)
+                Sleep(0.8)
+                CTRLWIN(ID, ACTIVATE)
+                Sleep(0.8)
+                Ifb POS("OPUS Container",Status(ALL_WIN_ID[i], ST_TITLE)) = 0 then
+                    j = 1
+                    repeat
+                        sckey(0,vk_ctrl,VK_TAB)
+                        Sleep(0.8)
+                        ifb status(getid("OPUS Container","IEFrame"),st_active)=true then
+                            break 2
+                        endif
+                        j = j + 1
+                    until j = GETITEM(ID, ITM_TAB)
+                    break 1
+                else
+                    break 1
+                endif
+            endif
+        next
+        Sleep(0.8)
+        FUKIDASI()
+
+        //---既存のウィンドウにOPUSが無い場合は新規のウィンドウで開く
+        ID = GetID("OPUS Container","IEFrame")
+        if ID = -1 then
+            FUKIDASI("OPUSを開いています【From:COMMON_OPUS】")
+            IE = CreateOLEObj("InternetExplorer.Application")
+            IE.Visible = True
+            IE.Navigate("http://10.196.10.101:9100/opuscntr/MainPage.do")
+            ID = GetID("OPUS Container","IEFrame")
+            CTRLWIN(ID, MAX)
+        endif
+        FUKIDASI()
+
+        //---Chckimgが通るように画面を拡大・拡少する ※これが無いとクリック出来ない場合がある
+        FUKIDASI("画面調整【From:COMMON_OPUS】")
+        SLEEP(1)
+        KBD(VK_CTRL,DOWN)
+        BTN(WHEEL,+5)
+        sleep(1)
+        BTN(WHEEL,-5)
+        KBD(VK_CTRL,UP)
+        FUKIDASI("")
+    Fend
+EndClass

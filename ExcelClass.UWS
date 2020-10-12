@@ -1,0 +1,12 @@
+CLASS ExcelClass
+  Procedure TASKKILL()
+    FUKIDASI("タスクキル")
+    DosCmd("TASKKILL /F /IM excel.exe")
+    for i = 0 to GETALLWIN()-1
+        ifb POS("Excel",　STRCONV(STATUS(ALL_WIN_ID[i], ST_PATH),SC_LOWERCASE)) <>  0 and POS("DOsystem",　STRCONV(STATUS(ALL_WIN_ID[i], ST_PATH),SC_LOWERCASE)) =  0 then 
+            CTRLWIN(ALL_WIN_ID[i], CLOSE)
+        endif
+    next
+    FUKIDASI("")
+  FEnd
+ENDCLASS

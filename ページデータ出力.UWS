@@ -1,0 +1,93 @@
+//windowpicker2.uws
+//スクリプトここから
+while 1
+fukidasi("Alt+Clickでウインドウの情報を取得します")
+ifb GETKEYSTATE(VK_ALT) and GETKEYSTATE(VK_LBUTTON) then 
+fukidasi("情報を取得しています")
+id=GETID(GET_FROMPOINT_WIN)
+fname = GET_CUR_DIR+"\windowPicker-"+STATUS(id,ST_CLASS)+".txt"
+
+ifb STATUS(id,ST_CLASS)="#32770"
+fname = GET_CUR_DIR+"\windowPicker-"+STATUS(id,ST_TITLE)+".txt"
+endif
+dontuse="\/:;*?<#DBL><>|"	// ファイルに使用できない文字を除外
+for i=1 to length(dontuse)
+CheckStr=COPY(dontuse,i,1)
+fname=CHGMOJ(fname,CheckStr,"")
+next 
+fid　=　FOPEN(fname,F_WRITE)
+fput(fid, "st_title=" +STATUS(id,ST_TITLE))
+fput(fid, "st_class=" +STATUS(id,ST_CLASS))
+fput(fid, "st_parent=" +STATUS(id,ST_PARENT))
+fput(fid, "st_path=" +STATUS(id,ST_PATH))
+
+str=STATUS(id,ST_TITLE)
+dontuse="\/:.;*?<#DBL><>|"
+for i=1 to length(dontuse)
+CheckStr=COPY(dontuse,i,1)
+str=CHGMOJ(str,CheckStr,"")
+next 
+if length(str)>4 then str=copy(str,1,4)　// ４文字より大きければ強制的に４文字に
+
+id_name=TOKEN(" ",str)+"id"
+fput(fid,id_name+"=GetID(<#DBL>"+STATUS(id,ST_TITLE)+"<#DBL>,<#DBL>"+STATUS(id,ST_CLASS)+"<#DBL>)")
+fput(fid,"exec(<#DBL>"+STATUS(id,ST_PATH)+"<#DBL>)")
+fput(fid,"")
+
+fputAllitem2(fid,id,ITM_BTN,"<<ITM_BTN>>",id_name,"CLK_BTN")
+fputAllitem2(fid,id,ITM_LIST,"<<ITM_LIST>>",id_name,"CLK_LIST")
+fputAllitem2(fid,id,ITM_TAB,"<<ITM_TAB>>",id_name,"CLK_TAB")
+fputAllitem2(fid,id,ITM_MENU,"<<ITM_MENU>>",id_name,"CLK_MENU")
+fputAllitem2(fid,id,ITM_TREEVEW,"<<ITM_TREEVEW>>",id_name,"CLK_TREEVEW") 
+fputAllitem2(fid,id,ITM_LSTVEW,"<<ITM_LSTVEW>>",id_name,"CLK_LSTVEW") 
+fputAllitem2(fid,id,ITM_ACCCLK,"<<ITM_ACCCLK>>",id_name,"CLK_ACC") 
+
+fputAllitem(fid,id,ITM_STATIC,"<<ITM_STATIC>>") 
+fputAllitem(fid,id,ITM_STATUSBAR,"<<ITM_STATUSBAR>>") 
+fputAllitem(fid,id,ITM_TOOLBAR,"<<ITM_TOOLBAR>>") 
+fputAllitem(fid,id,ITM_ACCTXT,"<<ITM_ACCTXT>>")
+fukidasi("ファイル保存中…")
+fclose(fid)
+exec("notepad.exe "+ fname) 
+CTRLWIN(GetID(fname),ACTIVATE)
+else
+sleep(0.5)
+endif
+
+wend
+
+
+Procedure fputAllitem(fid,id,item,str)
+count=GETITEM(id,item,-1)
+if count<1 then exit
+fukidasi("書き込み中"+str)
+fput (fid,str) 
+fput(fid, "count="+trim(format(count,5)))
+for　i　=　0　to　count-1 // -1 -2
+fput(fid, trim(format(i,5))+")" +ALL_ITEM_LIST[i])
+next
+fput(fid,"")
+fend
+
+
+Procedure fputAllitem2(fid,id,item,str,IDname,clkstr)
+count=GETITEM(id,item,-1)
+if count<1 then exit
+fukidasi("書き込み中"+str)
+fput (fid,str) 
+fput(fid, "count="+trim(format(count,5)))
+for　i　=　0　to　count-1 // -1 -2
+str="clkitem("+IDName+",<#DBL>"+ALL_ITEM_LIST[i]+"<#DBL>,"+clkstr+")"
+fput(fid, str)
+next
+fput(fid,"")
+fend
+
+//このテキストからGetIDの行と、"はい"をClickItemする行だけコピペすれば、このダイアログで「はい」を押すuwsc文ができます。
+
+//Adobid=GetID("Adobe Photoshop","#32770")
+//clkitem(Adobid,"はい",CLK_BTN)
+
+//項目の多いウインドウをclickしても、clkitemで操作が可能な項目はすべてリストアップされます。
+//あとは、操作したいものを選んでコピペし、適宜変更を加えてください
+//（ここに項目が出てこないものはclkitemでは操作できないということです。その場合ショートカットキーなりchkimgでアイコンを押すなりしましょう）

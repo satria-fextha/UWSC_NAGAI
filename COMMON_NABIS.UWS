@@ -1,0 +1,56 @@
+Call ImageClass.UWS
+
+Class NABIS
+    Procedure Login_DA()
+        DOSCMD("call C:\Users\utkn009\AppData\Roaming\Microsoft\Windows\<#DBL>Start Menu<#DBL>\Programs\<#DBL>SEIKO ELECTRIC<#DBL>\NABIS2.appref-ms")
+        PATH = "画像\COMMON_NABIS\ログイン.bmp"
+        While CHKIMG(PATH) = False
+            Sleep(1)
+        Wend
+        Sleep(0.5)
+        ID = GetID("ログイン画面","WindowsForms10.Window.8.app.0.141b42a_r9_ad1")
+        Sleep(0.5)
+        Sendstr(ID,"DA",1)
+        Sleep(0.5)
+        Sendstr(ID,"NAGAIDA",2)
+        Sleep(0.5)
+        Sendstr(ID,"3023",3)
+        Sleep(0.5)
+        Clkitem(ID,"ログイン",CLK_BTN)
+    Fend
+
+    Procedure Logout()
+        ログインID = GetID("ログイン画面","WindowsForms10.Window.8.app.0.141b42a_r9_ad1",-1)
+        Sleep(0.5)
+        CTRLWIN(ログインID, Close)
+        Sleep(0.5)
+        NABISID = GetID("NABIS","#32770",-1)
+        Sleep(0.5)
+        clkitem(NABISID,"はい",CLK_BTN)
+    Fend
+
+    Procedure 船社チャージ確認リスト出力()
+        Login_DA()
+        ログインID = GetID("ログイン画面","WindowsForms10.Window.8.app.0.141b42a_r9_ad1")
+        Sleep(0.5)
+        Clkitem(ログインID,"OI-乙仲管理システム【輸入管理】\業務管理\船社チャージ確認リスト",CLK_TREEVEW)
+        Sleep(0.5)
+        Image.MidClick("画像\COMMON_NABIS\リスト.bmp")
+        Image.MidClick("画像\COMMON_NABIS\リスト.bmp")
+        Sleep(0.5)
+        チャージID = GetID("船社チャージ確認リスト","WindowsForms10.Window.8.app.0.141b42a_r9_ad1")
+        Sleep(0.5)
+        Clkitem(チャージID,"印刷(F5)",CLK_BTN)
+        チャージExcelID=GetID("船社チャージ確認リスト.xlsx - Excel","XLMAIN",-1)
+        Sleep(0.5)
+        CTRLWIN(チャージExcelID, MIN)
+        Sleep(0.5)
+        チャージID = GetID("船社チャージ確認リスト","WindowsForms10.Window.8.app.0.141b42a_r9_ad1",-1)
+        Sleep(0.5)
+        Ctrlwin(チャージID, Close)
+        Sleep(0.5)
+        Logout()
+        Sleep(0.5)
+        CTRLWIN(チャージExcelID, MAX)
+    Fend
+EndClass

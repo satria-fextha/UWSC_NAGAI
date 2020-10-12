@@ -1,0 +1,2 @@
+wss = createoleobj("wscript.shell")
+objrun = wss.run("<#dbl>\\126.0.0.42\代_共通\不定期外航船\見積もり\港費計算表.xlsm<#dbl>")// My Documentsのフォルダを開く

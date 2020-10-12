@@ -1,0 +1,118 @@
+CHROME = EXEC("C:\Program Files (x86)\Google\Chrome\Application\chrome.exe")
+SLEEP(0.5)
+CHROMEID = GetID("Chrome")
+CTRLWIN(CHROMEID,MAX)//画面の最大化
+URL="https://www.oocl.com/jpn/ourservices/eservices/sailingschedule/Pages/nwjpn.aspx?site=japan&lang=jpn"
+SENDSTR(CHROMEID, URL)
+SCKEY(CHROMEID, VK_RETURN)
+SLEEP(1.5)
+DIM Countries[] = "台湾・中国(福建省)", "香港・中国(広東省)","韓国・中国(山東省 /浙江省/江蘇省)","シンガポール/マレーシア/インドネシア/ミャンマー","中東/ジブチ","インド/パキスタン","タイ/フィリピン/ベトナム","アフリカ","北欧州","オーストラリア/ニュージーランド"
+WaitReady1()
+FOR i = 0 TO length(Countries)-1
+  OOCLid=GetID("OOCL - 日本発着航路定期スケジュール - Google Chrome","Chrome_WidgetWin_1")
+  clkitem(OOCLid,Countries[i],CLK_ACC)
+  OUT_id=GetID("OUT_","Chrome_WidgetWin_1")
+  WaitReady2()
+  clkitem(OUT_id,"ダウンロード",CLK_ACC)
+  名前を付id=GetID("名前を付けて保存","#32770")
+  FileName = REPLACE(Countries[i],"/","")
+  SLEEP(0.3)
+  SENDSTR(名前を付id, "\\126.0.0.42\業務_共通\OOCL 荷役実績表\BOOKING\スケジュール\" + FileName)
+  clkitem(名前を付id,"保存",CLK_BTN)
+  SLEEP(1)
+  名前を付けて保存の確認id=GetID("名前を付けて保存の確認","#32770")
+  IFB 名前を付けて保存の確認id <> -1 THEN
+    clkitem(名前を付けて保存の確認id,"はい",CLK_BTN)
+  ENDIF
+  SLEEP(1)
+  clkitem(OUT_id,"戻る",CLK_BTN)
+  WaitReady1()
+NEXT
+CTRLWIN(OOCLid, CLOSE)
+
+n = GETDIR("\\126.0.0.42\業務_共通\OOCL 荷役実績表\BOOKING\スケジュール", "*pdf*", TRUE, 0) // UWSCのフォルダを指定
+//PRINT n + "個のファイルが見つかりました"
+FOR i = 0 TO (LENGTH(GETDIR_FILES) - 1)
+ //PRINT GETDIR_FILES[i]
+NEXT
+
+CHROME = EXEC("C:\Program Files (x86)\Google\Chrome\Application\chrome.exe")
+SLEEP(0.5)
+CHROMEID = GetID("Chrome")
+CTRLWIN(CHROMEID,MAX)//画面の最大化
+URL="https://www.ilovepdf.com/ja/pdf_to_excel"
+SENDSTR(CHROMEID, URL)
+SCKEY(CHROMEID, VK_RETURN)
+FOR i = 0 TO (LENGTH(GETDIR_FILES) - 1)
+  PDFをid=GetID("PDFをEXCELに","Chrome_WidgetWin_1")
+  WaitReady3()
+  SLEEP(1)
+  PATH = "C:\Users\utkn009\Desktop\uwsc5302\画像\OOCL\BOOKING\Flag3.bmp"
+  While CHKIMG(PATH) = False
+    Sleep(1)
+  Wend
+  BTN(LEFT, CLICK, G_IMG_X+50, G_IMG_Y+5)
+  BTN(LEFT, CLICK, G_IMG_X+50, G_IMG_Y+5)
+  開くid=GetID("開く","#32770")
+  SLEEP(1)
+  SENDSTR(開くid, "\\126.0.0.42\業務_共通\OOCL 荷役実績表\BOOKING\スケジュール\" + GETDIR_FILES[i])
+  SLEEP(1)
+  clkitem(開くid,"開く",CLK_BTN)
+  PDFをid=GetID("PDFをEXCELに瞬時に","Chrome_WidgetWin_1")
+  SLEEP(4)
+  PATH = "C:\Users\utkn009\Desktop\uwsc5302\画像\OOCL\BOOKING\EXCELに変換.bmp"
+  While CHKIMG(PATH) = False
+    Sleep(2)
+  Wend
+  BTN(LEFT, CLICK, G_IMG_X+50, G_IMG_Y+5)
+  SLEEP(2)
+  WaitReady4()
+  ファイルid=GetID("ファイルのダウンロード | iLovePDF - Google Chrome","Chrome_WidgetWin_1")
+  PATH = "C:\Users\utkn009\Desktop\uwsc5302\画像\OOCL\BOOKING\Flag4.bmp"
+  While CHKIMG(PATH) = False
+    Sleep(2)
+  Wend
+  BTN(LEFT, CLICK, G_IMG_X+50, G_IMG_Y+5)
+  SLEEP(2)
+  clkitem(ファイルid,"戻る",CLK_BTN)
+NEXT
+PDFをid=GetID("PDFをEXCELに","Chrome_WidgetWin_1")
+CTRLWIN(PDFをid, CLOSE)
+
+SLEEP(1)
+
+ExcelObj= CREATEOLEOBJ("Excel.Application")
+ExcelObj.Visible = True
+ExcelObj.Workbooks.Open("\\126.0.0.42\業務_共通\OOCL 荷役実績表\BOOKING\BookingCheck.xlsm")
+ExcelObj.Run ("test")
+
+//_______________________________________________________________________________________________________________________________________________________
+PROCEDURE WaitReady1()
+  PATH = "C:\Users\utkn009\Desktop\uwsc5302\画像\OOCL\BOOKING\Flag.bmp"
+  While CHKIMG(PATH) = False
+    Sleep(1)
+  Wend
+FEND
+//_______________________________________________________________________________________________________________________________________________________
+PROCEDURE WaitReady2()
+  PATH = "C:\Users\utkn009\Desktop\uwsc5302\画像\OOCL\BOOKING\Flag2.bmp"
+  While CHKIMG(PATH) = True
+    Sleep(1)
+  Wend
+FEND
+//_______________________________________________________________________________________________________________________________________________________
+PROCEDURE WaitReady3()
+  PATH = "C:\Users\utkn009\Desktop\uwsc5302\画像\OOCL\BOOKING\Flag3.bmp"
+  While CHKIMG(PATH) = False
+    fukidasi("koko")
+    Sleep(1)
+  Wend
+  fukidasi()
+FEND
+//_______________________________________________________________________________________________________________________________________________________
+PROCEDURE WaitReady4()
+  PATH = "C:\Users\utkn009\Desktop\uwsc5302\画像\OOCL\BOOKING\Flag4.bmp"
+  While CHKIMG(PATH) = False
+    Sleep(1)
+  Wend
+FEND

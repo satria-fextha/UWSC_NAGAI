@@ -1,0 +1,21 @@
+Call COMMON_NABIS.UWS
+Call ExcelClass.UWS
+Call File.UWS
+call COMMON.UWS
+
+ExcelClass.TASKKILL()
+Sleep(0.5)
+NABIS.船社チャージ確認リスト出力()
+n = GETDIR("\\126.0.0.42\代_共通\KAMBARA\NAGAI ADVANCE PAYMENT\", "*船社チャージ*")
+//Msgbox( n + "個のファイルが見つかりました")
+IFB n <> 0 then
+  FOR i = 0 TO (LENGTH(GETDIR_FILES) - 1)
+    File.TrashBox("\\126.0.0.42\代_共通\KAMBARA\NAGAI ADVANCE PAYMENT\" + GETDIR_FILES[i])
+  NEXT
+ENDIF
+EXCEL = CREATEOLEOBJ("Excel.Application")
+EXCEL = GETACTIVEOLEOBJ("Excel.Application")
+船社チャージWB = Excel.ActiveWorkbook
+船社チャージWB.SaveAs("\\126.0.0.42\代_共通\KAMBARA\NAGAI ADVANCE PAYMENT\船社チャージ確認リスト.xlsx")
+船社チャージWB.Close
+Msgbox("船社チャージリスト.xlsxを保存しました")

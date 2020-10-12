@@ -1,0 +1,2 @@
+wss = createoleobj("wscript.shell")
+objrun = wss.run("\\126.0.0.42\代_共通\不定期外航船")// My Documentsのフォルダを開く

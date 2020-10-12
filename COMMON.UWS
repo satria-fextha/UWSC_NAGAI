@@ -1,0 +1,139 @@
+Call ImageClass.UWS
+
+Class PDF
+  Procedure OpenByPDFViewer(folderPath,fileName)
+     Fukidasi(fileName + "を開いています【from:COMMON.UWS】") 
+     //【例】folderPath = "\\126.0.0.42\代_共通\KAMBARA"  fileName = "TESTB.pdf"
+     apli_path = "C:\Program Files\Tracker Software\PDF Viewer\PDFXCview.exe"
+     // アプリを起動してファイルをドロップ
+     Dropfile(exec(apli_path) , folderPath , fileName)
+     Fukidasi()
+  Fend
+  
+  Procedure ClosePDFViewer()
+     Fukidasi("PDF Viewerを閉じます【from:COMMON.UWS】")
+     ID=GetID("XChange Viewer","DSUI:PDFXCViewer")
+     ctrlwin(ID,Close)
+     Fukidasi()
+  Fend
+
+  Procedure FaxSend(folderPath,fileName,FaxNo)
+     Fukidasi(fileName + "をFax送信します(宛先：" + FaxNo +")【from:COMMON.UWS】") 
+     //【例】folderPath = "\\126.0.0.42\代_共通\KAMBARA"  fileName = "TESTB.pdf"
+     apli_path = "C:\Program Files\Tracker Software\PDF Viewer\PDFXCview.exe"
+     // アプリを起動してファイルをドロップ
+     Dropfile(exec(apli_path) , folderPath , fileName)
+     Sleep(1)
+     Image.MidClick("画像\神原\ArrivalFax\FaxBtn.bmp")
+     Fukidasi(fileName + "をFax送信します(宛先：" + FaxNo +")【from:COMMON.UWS】") 
+     Sleep(1)
+     印刷id=GetID("印刷","#32770")
+     Sleep(1)
+     N = "画像\神原\ArrivalFax\PrinterType.bmp"
+     IFB CHKIMG(N)=False
+       Image.MidClick("画像\神原\ArrivalFax\ListBtn.bmp")
+       Sleep(1)
+       Image.MidClick("画像\神原\ArrivalFax\WhiteCyFax.bmp")
+     ENDIF
+     Fukidasi(fileName + "をFax送信します(宛先：" + FaxNo +")【from:COMMON.UWS】") 
+     clkitem(印刷id,"印刷",CLK_BTN)
+     Sleep(1)
+     ファクスid=GetID("ファクス送信の設定","#32770")
+     Sleep(1)
+     Sendstr(ファクスid,FaxNo)
+     Sleep(1)
+     clkitem(ファクスid,"一覧に追加",CLK_BTN)
+     Sleep(1)
+     clkitem(ファクスid,"送信開始",CLK_BTN)
+     Sleep(2)
+     ID=GetID("XChange Viewer","DSUI:PDFXCViewer")
+     ctrlwin(ID,Close)
+     Fukidasi()
+  Fend
+
+  Procedure PaperPrint(folderPath,fileName)
+     Fukidasi(fileName + "を印刷中です【from:COMMON.UWS】") 
+     //【例】folderPath = "\\126.0.0.42\代_共通\KAMBARA"  fileName = "TESTB.pdf"
+     apli_path = "C:\Program Files\Tracker Software\PDF Viewer\PDFXCview.exe"
+     // アプリを起動してファイルをドロップ
+     Dropfile(exec(apli_path) , folderPath , fileName)
+     Sleep(1)
+     Image.MidClick("画像\COMMON\PDF\FaxBtn.bmp")
+     Fukidasi(fileName + "を印刷中です【from:COMMON.UWS】")
+     Sleep(1)
+     印刷id=GetID("印刷","#32770")
+     Sleep(1)
+     N = "画像\COMMON\PDF\C3373.bmp"
+     IFB CHKIMG(N)=False
+       Image.MidClick("画像\COMMON\PDF\ListBtn.bmp")
+       Sleep(1)
+       Image.MidClick("画像\COMMON\PDF\CYファックス.bmp")
+     ENDIF
+     Fukidasi(fileName + "を印刷中です【from:COMMON.UWS】")
+     clkitem(印刷id,"印刷",CLK_BTN)
+     Sleep(1)
+     ID=GetID("XChange Viewer","DSUI:PDFXCViewer")
+     ctrlwin(ID,Close)
+     Fukidasi()
+  Fend
+
+  Procedure ConvertExcel(FileName)
+     CHROME = EXEC("C:\Program Files (x86)\Google\Chrome\Application\chrome.exe")
+     CHROMEID = GetID("Chrome",,-1)
+     CTRLWIN(CHROMEID,MAX)//画面の最大化
+     URL="https://www.ilovepdf.com/ja/pdf_to_excel"
+     SENDSTR(CHROMEID, URL)
+     SCKEY(CHROMEID, VK_RETURN)
+     PDFをid=GetID("PDFをEXCELに","Chrome_WidgetWin_1",-1)
+     Sleep(1)
+     Image.MidClick("C:\Users\utkn009\Desktop\uwsc5302\画像\OOCL\BOOKING\Flag3.bmp")
+     開くid=GetID("開く","#32770",-1)
+     SENDSTR(開くid,FileName)
+     SLEEP(1)
+     Clkitem(開くid,"開く",CLK_BTN)
+     PDFをid=GetID("PDFをEXCELに瞬時に","Chrome_WidgetWin_1",-1)
+     Image.MidClick("C:\Users\utkn009\Desktop\uwsc5302\画像\OOCL\BOOKING\EXCELに変換.bmp")
+     ファイルid=GetID("ファイルのダウンロード | iLovePDF - Google Chrome","Chrome_WidgetWin_1",-1)
+     Image.MidClick("C:\Users\utkn009\Desktop\uwsc5302\画像\OOCL\BOOKING\Flag4.bmp")
+     n = Pos("\",FileName,-1)
+     buf = Copy(FileName, n+1, Length(FileName) - 4)
+     Msgbox(buf)
+     n = GETDIR("C:\Users\utkn009\Downloads","*" + buf + "*")
+     msgbox(n)
+  Fend
+
+Endclass
+
+//Twitterでは同じ文字列を短期間に入力できない為、Random()で適当にIDを付ける
+Class Twitter
+   Procedure tweet(msg)
+      CHROME = EXEC("C:\Program Files (x86)\Google\Chrome\Application\chrome.exe")
+      SLEEP(0.5)
+      CHROMEID = GetID("Chrome",,-1)
+      CTRLWIN(CHROMEID,MAX)
+      //URL="https://twitter.com/login"
+      URL="https://twitter.com/compose/tweet"
+      SENDSTR(CHROMEID, URL)
+      SLEEP(1.5)
+      SCKEY(CHROMEID, VK_RETURN)
+      TweetID = "<#CR>メッセージID:" + Random(1000)
+      Sendstr(0,msg + TweetID)
+      Sleep(1)
+      Kbd(VK_CTRL,DOWN)
+      Sleep(0.5)
+      Kbd(VK_V)
+      Sleep(0.5)
+      Kbd(VK_CTRL,UP)
+      Sleep(0.5)
+      For i = 1 to 8
+        Kbd(VK_TAB)
+        Sleep(0.5)
+        i = i + 1
+      Next
+      Sleep(0.5)
+      Kbd(VK_RETURN)
+      Sleep(1)
+      id=GetID("Home / Twitter","Chrome_WidgetWin_1",-1)
+      Ctrlwin(id,Close)
+   Fend
+Endclass

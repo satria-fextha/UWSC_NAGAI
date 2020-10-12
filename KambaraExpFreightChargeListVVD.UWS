@@ -1,0 +1,118 @@
+Call ExcelClass.UWS
+Call File.UWS
+Call COMMON_OPUS.UWS
+call COMMON.UWS
+
+ExpVslCode = COPY(PARAM_STR[0],20,9)
+ImpVslCode = COPY(PARAM_STR[0],20,8) + "E"
+
+//タスクキル
+ExcelClass.TASKKILL()
+
+//既存ファイルの削除
+FUKIDASI("既存ファイルの削除")
+n = GETDIR("\\126.0.0.42\代_共通\KAMBARA\CHARGE LIST\", ExpVslCode + "*xlsx*")
+IFB n <> 0 then
+  FOR i = 0 TO (LENGTH(GETDIR_FILES) - 1)
+    File.TrashBox("\\126.0.0.42\代_共通\KAMBARA\CHARGE LIST\" +  + GETDIR_FILES[i])
+  NEXT
+ENDIF
+
+OPUS.OpenTab()
+SLEEP(1)
+KBD(VK_CTRL,DOWN)
+BTN(WHEEL,+5)
+sleep(1)
+BTN(WHEEL,-5)
+KBD(VK_CTRL,UP)
+
+PATH = "画像\神原\FreightChargeListVVD\BookingDocumentation.bmp"
+FUKIDASI( PATH + "検索中")
+While CHKIMG(PATH) = False
+  Sleep(1)
+Wend
+BTN(LEFT, CLICK, G_IMG_X+50, G_IMG_Y+5)
+
+PATH = "画像\神原\FreightChargeListVVD\Report.bmp"
+FUKIDASI( PATH + "検索中")
+While CHKIMG(PATH) = False
+  Sleep(1)
+Wend
+BTN(LEFT, CLICK, G_IMG_X+0, G_IMG_Y+5)
+
+PATH = "画像\神原\FreightChargeListVVD\FreightChargeList.bmp"
+FUKIDASI( PATH + "検索中")
+While CHKIMG(PATH) = False
+  Sleep(1)
+Wend
+BTN(LEFT, CLICK, G_IMG_X+0, G_IMG_Y+5)
+
+PATH = "画像\神原\FreightChargeListVVD\OPUS.bmp"
+FUKIDASI( PATH + "検索中")
+While CHKIMG(PATH) = False
+  Sleep(1)
+Wend
+BTN(LEFT, CLICK, G_IMG_X+0, G_IMG_Y+5)
+
+FUKIDASI("画面最大化")
+FrtChgID=GetID("Freight & Charge List by VVD - Internet Explorer","IEFrame")
+CTRLWIN(FrtChgID, MAX)
+FUKIDASI("船名入力")
+SENDSTR(FrtChgID, ExpVslCode, 4, True)
+SLEEP(2)
+
+PATH = "画像\神原\FreightChargeListVVD\Actual.bmp"
+FUKIDASI( PATH + "検索中")
+While CHKIMG(PATH) = False
+  Sleep(1)
+Wend
+BTN(LEFT, CLICK, G_IMG_X+7, G_IMG_Y+7)
+
+FUKIDASI("JPIMI入力")
+SLEEP(1)
+SENDSTR(FrtChgID, "JPIMI", 6, True)
+
+PATH = "画像\神原\FreightChargeListVVD\Retrive.bmp"
+FUKIDASI( PATH + "検索中")
+While CHKIMG(PATH) = False
+  Sleep(1)
+Wend
+BTN(LEFT, CLICK, G_IMG_X+25, G_IMG_Y+5)
+
+PATH = "画像\神原\FreightChargeListVVD\Retrive.bmp"
+FUKIDASI( PATH + "検索中")
+While CHKIMG(PATH) = False
+  Sleep(1)
+Wend
+BTN(LEFT, CLICK, G_IMG_X+25, G_IMG_Y+5)
+
+SLEEP(1)
+
+PATH = "画像\神原\FreightChargeListVVD\DownExel.bmp"
+FUKIDASI( PATH + "検索中")
+While CHKIMG(PATH) = False
+  Sleep(1)
+Wend
+BTN(LEFT, CLICK, G_IMG_X+25, G_IMG_Y+5)
+BTN(LEFT, CLICK, G_IMG_X+25, G_IMG_Y+5)
+
+SlEEP(2)
+
+FUKIDASI("Excel処理開始")
+Excel = CreateOLEObj("Excel.Application")
+Excel = GETACTIVEOLEOBJ("Excel.Application")
+ws = Excel.ActiveWorkbook.Activesheet
+ListID = GetID("Book","XLMAIN")
+SLEEP(1)
+CTRLWIN(ListID, TOPMOST)
+CTRLWIN(ListID, MAX)
+CTRLWIN(ListID, NOTOPMOST)
+SLEEP(1)
+EXCEL.ActiveWorkbook.SaveAS("\\126.0.0.42\代_共通\KAMBARA\CHARGE LIST\" + ExpVslCode + ".xlsx")
+SLEEP(1)
+CTRLWIN(FrtChgID, CLOSE)
+SLEEP(1)
+CTRLWIN(ListID, CLOSE)
+FUKIDASI()
+MSGBOX("処理完了")
+ScheduleList()

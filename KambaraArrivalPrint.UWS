@@ -1,0 +1,343 @@
+Call File.UWS
+Call COMMON_OPUS.UWS 
+Call ImageClass.UWS
+call COMMON.UWS
+start = Gettime()
+//KCRA0116W(9文字)
+//KCRA0116(8文字) + "E"
+
+ExpVslCode = COPY(PARAM_STR[0],20,9)
+ImpVslCode = COPY(PARAM_STR[0],20,8) + "E"
+FolderName = ImpVslCode
+
+//UWSCのアイコン非表示
+STOPFORM(FALSE)
+
+OPUS.OpenTab()
+Sleep(1)
+FUKIDASI("画面調整")
+SLEEP(1)
+KBD(VK_CTRL,DOWN)
+BTN(WHEEL,+5)
+sleep(1)
+BTN(WHEEL,-5)
+KBD(VK_CTRL,UP)
+FUKIDASI("")
+
+FUKIDASI("Service Management検索")
+PATH = "画像\神原\ArrivalPrint\ServiceManagement.bmp"
+While CHKIMG(PATH) = False
+  Sleep(1)
+Wend
+BTN(LEFT, CLICK, G_IMG_X+50, G_IMG_Y+5)
+FUKIDASI("")
+
+FUKIDASI("Inbound Doc検索")
+PATH = "画像\神原\ArrivalPrint\InboundDoc.bmp"
+While CHKIMG(PATH) = False
+  Sleep(1)
+Wend
+BTN(LEFT, CLICK, G_IMG_X+0, G_IMG_Y+5)
+FUKIDASI("")
+
+FUKIDASI("Arrival Notice検索")
+PATH = "画像\神原\ArrivalPrint\ArrivalNotice.bmp"
+While CHKIMG(PATH) = False
+  Sleep(1)
+Wend
+BTN(LEFT, CLICK, G_IMG_X+0, G_IMG_Y+5)
+FUKIDASI("")
+
+FUKIDASI("Arrival Information検索")
+PATH = "画像\神原\ArrivalPrint\ArrivalInfo.bmp"
+While CHKIMG(PATH) = False
+  Sleep(1)
+Wend
+BTN(LEFT, CLICK, G_IMG_X+0, G_IMG_Y+5)
+FUKIDASI("")
+
+FUKIDASI("Arrival Information最大化")
+Arriid=GetID("Arrival Information","IEFrame")
+CTRLWIN(Arriid, MAX)
+FUKIDASI("")
+
+FUKIDASI("船名入力")
+SENDSTR(Arriid, ImpVslCode, 2, True)
+SLEEP(2)
+FUKIDASI("")
+
+FUKIDASI("Retrive")
+PATH = "画像\神原\ArrivalPrint\Retrive.bmp"
+While CHKIMG(PATH) = False
+  Sleep(1)
+Wend
+BTN(LEFT, CLICK, G_IMG_X+40, G_IMG_Y+10)
+
+FUKIDASI("タスクキル")
+//タスクキル
+DosCmd("TASKKILL /F /IM excel.exe")
+for i = 0 to GETALLWIN()-1
+  ifb POS("Excel",　STRCONV(STATUS(ALL_WIN_ID[i], ST_PATH),SC_LOWERCASE)) <>  0 and POS("DOsystem",　STRCONV(STATUS(ALL_WIN_ID[i], ST_PATH),SC_LOWERCASE)) =  0 then 
+    CTRLWIN(ALL_WIN_ID[i], CLOSE)
+  endif
+next
+FUKIDASI("")
+
+FUKIDASI("Down Excel")
+PATH = "画像\神原\ArrivalPrint\DownExcel.bmp"
+While CHKIMG(PATH) = False
+  Sleep(1)
+Wend
+BTN(LEFT, CLICK, G_IMG_X+40, G_IMG_Y+10)
+Sleep(2)
+FUKIDASI("")
+
+FUKIDASI("件数(最終行)取得")
+Excel = CreateOLEObj("Excel.Application")
+Excel = GETACTIVEOLEOBJ("Excel.Application")
+ws = Excel.ActiveWorkbook.Activesheet
+ListID = GetID("Book","XLMAIN")
+最終行 = ws.Cells(ws.Rows.Count, "A").End(-4162).Row
+CTRLWIN(ListID, MIN)
+Sleep(2)
+FUKIDASI("")
+
+CTRLWIN(Arriid, TOPMOST)
+FUKIDASI("CodeValidate" + " 件数：" + 最終行)
+PATH = "画像\神原\ArrivalPrint\CodeValidate.bmp"
+While CHKIMG(PATH) = False
+  Sleep(1)
+Wend
+BTN(LEFT, CLICK, G_IMG_X+40, G_IMG_Y+10)
+Sleep(2)
+FUKIDASI("")
+
+Valiid=GetID("Arrival Notice - Customer Code Validate -- Web ページ ダイアログ","Internet Explorer_TridentDlgFrame")
+CTRLWIN(Valiid, MAX)
+CTRLWIN(Valiid, TOPMOST)
+
+FUKIDASI("Retrive" + " 件数：" + 最終行)
+PATH = "画像\神原\ArrivalPrint\Retrive2.bmp"
+While CHKIMG(PATH) = False
+  Sleep(1)
+Wend
+BTN(LEFT, CLICK, G_IMG_X+25, G_IMG_Y+5)
+FUKIDASI("")
+
+FOR i = 10 to 0 step -1
+  FUKIDASI("表示待ち " + i + "秒" )
+  Sleep(1)
+NEXT
+
+FUKIDASI("")
+
+FUKIDASI("Evaluation判定" )
+Y = "画像\神原\ArrivalPrint\1.bmp"
+N = "画像\神原\ArrivalPrint\ThereIsNoData.bmp"
+REPEAT
+  SLEEP(1)
+UNTIL CHKIMG(N)=TRUE OR CHKIMG(Y)=TRUE
+IFB CHKIMG(Y)=TRUE
+  Evaluation入力(最終行)
+  FUKIDASI("")
+ELSEIF CHKIMG(N)=TRUE
+  FUKIDASI("Evaluation不要")
+ENDIF
+FUKIDASI("")
+
+FUKIDASI("画面を閉じる")
+SLEEP(1)
+CTRLWIN(Valiid, CLOSE)
+SLEEP(1)
+CTRLWIN(Arriid, CLOSE)
+FUKIDASI("")
+
+FUKIDASI(ImpVslCode + "フォルダ作成")
+folder_name =FolderName
+Doscmd("mkdir \\126.0.0.42\代_共通\KAMBARA\" + "<#DBL>ARRIVAL NOTICE<#DBL>" + "\" + folder_name)
+FUKIDASI("")
+
+n = GETDIR("\\126.0.0.42\代_共通\KAMBARA\ARRIVAL NOTICE\"+ folder_name + "\", "*pdf*") // UWSCのフォルダを指定
+//msgbox( n + "個のファイルが見つかりました")
+IFB n <> 0 then
+  FOR i = 0 TO (LENGTH(GETDIR_FILES) - 1)
+    File.TrashBox("\\126.0.0.42\代_共通\KAMBARA\ARRIVAL NOTICE\"+ folder_name + "\" + GETDIR_FILES[i])
+  NEXT
+ENDIF
+//msgbox("消しました")
+
+OPUS.OpenTab()
+
+FUKIDASI("Service Management検索")
+PATH = "画像\神原\ArrivalPrint\ServiceManagement.bmp"
+While CHKIMG(PATH) = False
+  Sleep(1)
+Wend
+BTN(LEFT, CLICK, G_IMG_X+50, G_IMG_Y+5)
+FUKIDASI("")
+
+FUKIDASI("Inbound Doc検索")
+PATH = "画像\神原\ArrivalPrint\InboundDoc.bmp"
+While CHKIMG(PATH) = False
+  Sleep(1)
+Wend
+BTN(LEFT, CLICK, G_IMG_X+0, G_IMG_Y+5)
+FUKIDASI("")
+
+FUKIDASI("Arrival Notice検索")
+PATH = "画像\神原\ArrivalPrint\ArrivalNotice.bmp"
+While CHKIMG(PATH) = False
+  Sleep(1)
+Wend
+BTN(LEFT, CLICK, G_IMG_X+0, G_IMG_Y+5)
+FUKIDASI("")
+
+FUKIDASI("Arrival Notice Send検索")
+PATH = "画像\神原\ArrivalPrint\ArrivalNoticeSend.bmp"
+While CHKIMG(PATH) = False
+  Sleep(1)
+Wend
+BTN(LEFT, CLICK, G_IMG_X+0, G_IMG_Y+5)
+FUKIDASI("")
+
+SlEEP(1.5)
+ArrSendID=GetID("Arrival Notice Send","IEFrame")
+a = 0
+件数 = 最終行
+for i = 2 to 最終行
+　BLNO = ws.cells(i,3).Value
+  IFB BLNo <> "" then
+    FUKIDASI(BLNO + " 入力 あと" +  a + "/" + 件数 + "件")
+    SlEEP(0.2)
+    SENDSTR(ArrSendID, BLNo, 8, True)
+    SlEEP(0.2)
+    KBD(VK_RETURN)
+    SLEEP(0.5)
+    PATH = "画像\神原\ArrivalPrint\SEL.bmp"
+　　FUKIDASI(PATH + " 検索 あと" +  a + "/" + 件数 + "件")
+    While CHKIMG(PATH) = False
+      Sleep(1)
+    Wend
+    BTN(LEFT, CLICK, G_IMG_X+19, G_IMG_Y+31)
+    SLEEP(0.5)
+    PATH = "画像\神原\ArrivalPrint\CHG.bmp"
+　　FUKIDASI(PATH + " 検索 あと" +  a + "/" + 件数 + "件")
+    While CHKIMG(PATH) = False
+      Sleep(1)
+    Wend
+    BTN(LEFT, CLICK, G_IMG_X+19, G_IMG_Y+31)
+    PATH = "画像\神原\ArrivalPrint\Preview.bmp"
+　　FUKIDASI(PATH + " 検索 あと" +  a + "/" + 件数 + "件")
+    While CHKIMG(PATH) = False
+      Sleep(1)
+    Wend
+    BTN(LEFT, CLICK, G_IMG_X+20, G_IMG_Y+8)
+    PATH = "画像\神原\ArrivalPrint\OK1.bmp"
+　　FUKIDASI(PATH + " 検索 あと" +  a + "/" + 件数 + "件")
+    While CHKIMG(PATH) = False
+      Sleep(1)
+    Wend
+    BTN(LEFT, CLICK, G_IMG_X+5, G_IMG_Y+8)
+    PATH = "画像\神原\ArrivalPrint\Flag.bmp"
+　　FUKIDASI(PATH + " 検索 あと" +  a + "/" + 件数 + "件")
+    While CHKIMG(PATH) = False
+      Sleep(1)
+    Wend
+    SLEEP(1)
+    BTN(LEFT, CLICK, G_IMG_X+5, G_IMG_Y+8)
+    PATH = "画像\神原\ArrivalPrint\PDFMARK.bmp"
+　　FUKIDASI(PATH + " 検索 あと" +  a + "/" + 件数 + "件")
+    While CHKIMG(PATH) = False
+      Sleep(1)
+    Wend
+    BTN(LEFT, CLICK, G_IMG_X+5, G_IMG_Y+5)  
+    PATH = "画像\神原\ArrivalPrint\XFlag.bmp"
+    FUKIDASI(PATH + " 検索 あと" +  a + "/" + 件数 + "件")
+    While CHKIMG(PATH) = False
+      Sleep(1)
+    Wend
+    KBD(VK_CTRL, DOWN)
+    KBD(VK_SHIFT, DOWN)
+    KBD(VK_S)
+    KBD(VK_CTRL, UP)
+    KBD(VK_SHIFT, UP)
+    名前を付id=GetID("名前を付けて保存","#32770")
+    SLEEP(0.5)    
+    SENDSTR(名前を付id, "\\126.0.0.42\代_共通\KAMBARA\ARRIVAL NOTICE\"+ folder_name + "\" + BLNo, 1, True)
+    SLEEP(0.5)
+    clkitem(名前を付id,"保存",CLK_BTN)
+    SLEEP(0.5)
+    ESM_id=GetID("XChange Viewer","DSUI:PDFXCViewer")
+    CTRLWIN(ESM_id, CLOSE)
+    SLEEP(0.5)
+    Previewid=GetID("Web ページ ダイアログ","Internet Explorer_TridentDlgFrame")
+    CTRLWIN(Previewid, CLOSE)
+  ENDIF
+  a = a + 1
+next
+FUKIDASI("")
+
+CTRLWIN(ListID , CLOSE)
+Sleep(0.8)
+Micrid=GetID("Microsoft Excel","NUIDialog")
+Sleep(0.8)
+Clkitem(Micrid,"保存しない",CLK_BTN)
+Sleep(0.8)
+CTRLWIN(ArrSendID , CLOSE)
+Sleep(2)
+Kbd(VK_CTRL,UP)
+stop = Gettime()
+TimeResult = stop - start
+Twitter.tweet(PARAM_STR[0] + "<#CR>A/NをPDFで保存しました<#CR>" + "所要時間:" + TimeResult)
+Msgbox("Arrival発行完了")
+
+//＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿
+PROCEDURE Evaluation入力(最終行)
+  FUKIDASI("Evaluation" + " 件数：" + 最終行)
+  PATH = "画像\神原\ArrivalPrint\Evaluation.bmp"
+  While CHKIMG(PATH) = False
+    Sleep(1)
+  Wend
+  Sleep(1)
+  BTN(LEFT, CLICK, G_IMG_X+0, G_IMG_Y+30)
+  BTN(LEFT, CLICK, G_IMG_X+0, G_IMG_Y+30)
+  SLEEP(0.5)
+  KBD(VK_O)
+  SLEEP(0.5)
+  KBD(VK_DOWN)
+  SLEEP(0.5)
+  FUKIDASI("")
+
+  FUKIDASI("入力開始" + " 回数：" + 最終行)
+  PATH = "画像\神原\ArrivalPrint\Okay.bmp"
+  for i = 最終行 to 0 step -1
+    FUKIDASI("あと" + i + "回")
+    While CHKIMG(path,,,,,,-1) = False
+      Sleep(1)
+    Wend
+    BTN(LEFT, CLICK, G_IMG_X+5, G_IMG_Y+25)
+    BTN(LEFT, CLICK, G_IMG_X+5, G_IMG_Y+25)
+    SLEEP(0.5)
+    KBD(VK_O)
+    SLEEP(0.5)
+    KBD(VK_DOWN)
+    SLEEP(0.5)
+  next
+
+  Image.MidClick("画像\神原\ArrivalPrint\Save.bmp")
+  Sleep(0.5)
+  Image.MidClick("画像\神原\ArrivalPrint\CodeValidateOK.bmp")
+  Sleep(0.5)
+  Image.MidClick("画像\神原\ArrivalPrint\Retrive2.bmp")
+  Y = "画像\神原\ArrivalPrint\1.bmp"
+  N = "画像\神原\ArrivalPrint\ThereIsNoData.bmp"
+  REPEAT
+    SLEEP(1)
+  UNTIL CHKIMG(N)=TRUE OR CHKIMG(Y)=TRUE
+  IFB CHKIMG(Y)=TRUE
+    Msgbox("Code Validateが残ってる")
+    EXITEXIT
+  ELSEIF CHKIMG(N)=TRUE
+    FUKIDASI("Code Validate完了")
+  ENDIF
+FEND

@@ -1,0 +1,7 @@
+CHROME = EXEC("C:\Program Files (x86)\Google\Chrome\Application\chrome.exe")
+//SLEEP(0.5)
+CHROMEID = GetID("Chrome")
+CTRLWIN(CHROMEID,MAX)//画面の最大化
+URL="https://jp2.shipfinder.com/Monitor/Index"
+SENDSTR(CHROMEID, URL)
+SCKEY(CHROMEID, VK_RETURN)

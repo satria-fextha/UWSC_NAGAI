@@ -1,0 +1,13 @@
+CHROME = EXEC("C:\Program Files\Google\Chrome\Application\chrome.exe") //chromeを開く
+
+SLEEP(1)
+
+URL="https://jp2.shipfinder.com/monitor/index"//検索するURL
+
+新しいタid=GetID("新しいタブ - Google Chrome","Chrome_WidgetWin_1")//IDの入手
+
+CTRLWIN(新しいタid,MAX)//画面の最大化
+
+SENDSTR(新しいタid, URL)//URLを入力
+
+SCKEY(新しいタid, VK_RETURN)//エンターを押して検索

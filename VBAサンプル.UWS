@@ -1,0 +1,4 @@
+EXCEL = CREATEOLEOBJ("Excel.Application")
+EXCEL.visible = True
+EXCEL.workbooks.open("C:\Users\utkn009\Desktop\VBAバックアップ\VBAコードサンプル.xlsm")
+

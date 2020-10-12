@@ -1,0 +1,9 @@
+PATH1 = "画像/神原/Arrival/OK.bmp"//検索する画像がある場所(ファイル名/画像名.bmp)
+PATH2 = "画像/神原/Arrival/OK2.bmp"//検索する画像がある場所(ファイル名/画像名.bmp)
+
+WHILE TRUE
+IF CHKIMG(PATH1) THEN BTN(LEFT, CLICK, G_IMG_X+30, G_IMG_Y+10)//検索する画像をクリック
+SLEEP(1)
+IF CHKIMG(PATH2) THEN BTN(LEFT, CLICK, G_IMG_X+30, G_IMG_Y+10)//検索する画像をクリック
+SLEEP(1)
+WEND

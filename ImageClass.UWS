@@ -1,0 +1,54 @@
+//---例「BookingDocumentation.bmp」をクリックするなら
+//ImageFilePath = "画像\神原\BookingStatusReport\BookingDocumentation.bmp" 
+//MidClick(ImageFilePath)
+
+
+// ImageFilePath:画像のパス
+// 戻り値:WHSize[] (画像の横幅、縦幅の配列)
+Class Image
+  procedure MidClick(ImageFilePath)
+
+    // 画像のサイズを格納する配列
+    Dim WHSize[1]
+
+    // 画像をバイナリ形式で扱えるCOMオブジェクトを用意
+    stream = CreateOleObj("ADODB.Stream")
+    
+    // 実際に読み込んでもらうためにstreamを開く
+    stream.Open()
+    
+    // バイナリデータを扱うようにstreamのプロパティを設定
+    stream.Type = 1  // 1:バイナリデータ  2:テキストデータ
+    
+    // streamを使って画像をバイナリデータとして読み込む
+    stream.LoadFromFile(ImageFilePath)
+    
+    // 読み込まれたバイナリデータを先頭から26byte取得
+    ImagePartBinary = stream.Read(26)
+    
+    // streamは閉じる
+    stream.Close()
+
+    // 配列から画像のサイズを計算
+    // 配列の添え字は0から始まるため要素の19番目にアクセスするには
+    // ImagePartBinary[18]と書く
+    // Power(a, b)  aのb乗を返す
+    for i=18 to length(ImagePartBinary)-1  
+      // 横幅の計算
+      if (i<22) then WHSize[0] = WHSize[0] + ImagePartBinary[i]*Power(256, i-18)
+      // 縦幅を計算
+      if (i>21) then WHSize[1] = WHSize[1] + ImagePartBinary[i]*Power(256, i-22)
+    next
+
+    // 計算が終わったのでサイズが格納された配列を返す
+    Fukidasi(ImageFilePath + "検索中【from:ImageClass.MidClick】")
+    while chkimg(ImageFilePath) = False
+      Sleep(1)
+    Wend
+      SizeArr = slice(WHSize, 0, length(WHSize)-1)
+      i_width = SizeArr[0]/2
+      i_height = SizeArr[1]/2
+      BTN(LEFT, CLICK, G_IMG_X+i_width, G_IMG_Y+i_height)
+      Fukidasi()
+  fend
+EndClass

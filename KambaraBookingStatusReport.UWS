@@ -1,0 +1,138 @@
+Call COMMON_OPUS.UWS
+call COMMON.UWS
+
+ExpVslCode = COPY(PARAM_STR[0],20,9)
+ImpVslCode = COPY(PARAM_STR[0],20,8) + "E"
+
+OPUS.OpenTab()
+SLEEP(1)
+KBD(VK_CTRL,DOWN)
+BTN(WHEEL,+5)
+sleep(1)
+BTN(WHEEL,-5)
+KBD(VK_CTRL,UP)
+
+PATH = "画像\神原\BookingStatusReport\BookingDocumentation.bmp"
+While CHKIMG(PATH) = False
+  Sleep(1)
+Wend
+BTN(LEFT, CLICK, G_IMG_X+50, G_IMG_Y+5)
+
+PATH = "画像\神原\BookingStatusReport\Report.bmp"
+While CHKIMG(PATH) = False
+  Sleep(1)
+Wend
+BTN(LEFT, CLICK, G_IMG_X+0, G_IMG_Y+5)
+
+PATH = "画像\神原\BookingStatusReport\BookingStatusReport.bmp"
+While CHKIMG(PATH) = False
+  Sleep(1)
+Wend
+BTN(LEFT, CLICK, G_IMG_X+0, G_IMG_Y+5)
+
+PATH = "画像\神原\BookingStatusReport\Default.bmp"
+While CHKIMG(PATH) = False
+  Sleep(1)
+Wend
+
+SLEEP(1)
+
+BkgStsRepID=GetID("Booking Status Report - Internet Explorer","IEFrame")
+SLEEP(1)
+SENDSTR(BkgStsRepID, "kei", 14, True)
+SENDSTR(BkgStsRepID, ImpVslCode, 15, True)
+SENDSTR(BkgStsRepID, "JPIMI", 19, True)
+
+PATH = "画像\神原\BookingStatusReport\Retrive.bmp"
+While CHKIMG(PATH) = False
+  Sleep(1)
+Wend
+BTN(LEFT, CLICK, G_IMG_X+25, G_IMG_Y+5)
+
+CTRLWIN(BkgStsRepID, MAX)
+
+//sleep(5)
+//BTN(WHEEL,-500)
+//sleep(5)
+//BTN(WHEEL,+500)
+//sleep(5)
+
+//MSGBOX("処理完了")
+
+//CTRLWIN(BkgStsRepID, CLOSE)
+
+
+
+//ScheduleList()
+
+//SLEEP(1)
+
+//SENDSTR(PrintVVDID, "JPIMI", 5, True)
+
+//SLEEP(1)
+
+
+//SLEEP(1)
+
+//PATH = "画像\神原\Manifest\CheckAll.bmp"
+//While CHKIMG(PATH) = False
+//  Sleep(1)
+//Wend
+//BTN(LEFT, CLICK, G_IMG_X+25, G_IMG_Y+5)
+
+//SLEEP(1)
+
+//PATH = "画像\神原\Manifest\Print.bmp"
+//While CHKIMG(PATH) = False
+//  Sleep(1)
+//Wend
+//BTN(LEFT, CLICK, G_IMG_X+25, G_IMG_Y+5)
+
+//SLEEP(1)
+
+//PrintID=GetID("Welcome to opus! - Internet Explorer","IEFrame")
+//SLEEP(1)
+//SENDSTR(PrintID, "Microsoft Print to PDF", 1, True)
+
+//SLEEP(1)
+
+//PATH = "画像\神原\Manifest\Print2.bmp"
+//While CHKIMG(PATH) = False
+//  Sleep(1)
+//Wend
+//BTN(LEFT, CLICK, G_IMG_X+25, G_IMG_Y+5)
+
+//Fukidasi("処理中です<#CR>操作しないで下さい")
+
+//Docmentid=GetID("印刷結果を名前を付けて保存","#32770")
+//REPEAT
+//  sleep(1)
+//  Docmentid=GetID("印刷結果を名前を付けて保存","#32770")
+//  Fukidasi("印刷待ちです<#CR>操作しないで下さい")
+//UNTIL Docmentid <> -1
+//SLEEP(2)
+//VslCodeForSales = COPY(ImpVslCode, 2, 8)
+//SENDSTR(Docmentid, "\\126.0.0.42\本社_外部\神原汽船マニフェスト\" + VslCodeForSales + " CARGO MANIFEST", 1, True)
+//SLEEP(1)
+//clkitem(Docmentid,"保存",CLK_BTN)
+//Fukidasi()//吹き出しを消す
+
+//Sleep(2)
+
+//Rewrite = "N"
+//PATH = "画像\神原\Manifest\Rewrite.bmp"
+//Rewriteid=GetID("名前を付けて保存の確認","#32770")
+//IFB CHKIMG(PATH) = True then
+//  clkitem(Rewriteid,"いいえ",CLK_BTN)
+//  clkitem(Docmentid,"キャンセル",CLK_BTN)
+//  Rewrite = "Y"
+//ENDIF
+
+//CTRLWIN(PrintID, CLOSE)
+//CTRLWIN(PrintVVDID, CLOSE)
+
+//IFB Rewrite = "Y" THEN
+//  MSGBOX(VslCodeForSales + " CARGO MANIFESTはすでに保存済みでした")
+//ELSE
+//  MSGBOX("本社外部の神原汽船マニュフェストに<#CR>" + PARAM_STR[0] + "のマニュフェストを保存しました")
+//ENDIF

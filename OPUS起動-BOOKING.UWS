@@ -1,0 +1,114 @@
+IFB -1 = GetID("OPUS Container - Windows Internet Explorer","IEFrame")
+
+IE = CreateOLEObj("InternetExplorer.Application")
+
+IE.Visible = True
+
+IE.Navigate("http://cntr.heung-a.com/opuscntr/SignOn.do")//OPUSを開く
+
+ENDIF
+
+OPUSid=GetID("OPUS Container - Windows Internet Explorer","IEFrame")//OPUSのIDを入手
+
+CTRLWIN(OPUSid, SHOW)
+
+CTRLWIN(OPUSid, MAX)
+
+WHILE (CHKIMG("OPUS画像/LOGIN.bmp")=FALSE) //「bbb.bmp」が表示されるまで以下の処理
+
+SLEEP(1.5)
+
+IF CHKIMG("OPUS画像/ログイン完了.bmp")=true BREAK
+
+WEND
+
+PATH = "OPUS画像/LOGIN.bmp"
+
+IFB CHKIMG(PATH)
+
+BTN(LEFT, CLICK, G_IMG_X-75, G_IMG_Y+10)
+
+ENDIF
+
+SLEEP(2)
+
+OPUSid=GetID("OPUS Container - Windows Internet Explorer","IEFrame")//OPUSのIDを入手
+
+SENDSTR(OPUSid,"IMIADM00")
+
+SLEEP(1)
+
+KBD(VK_RETURN)
+
+///////
+
+WHILE (CHKIMG("OPUS画像/ログイン完了.bmp")=FALSE) //「bbb.bmp」が表示されるまで以下の処理
+
+SLEEP(1.5)
+
+WEND
+
+PATH = "OPUS画像/BKG.bmp"
+
+IFB CHKIMG(PATH)
+BTN(LEFT, CLICK, G_IMG_X+80, G_IMG_Y+20)
+
+ELSE
+
+MSGBOX(PATH + "と同じイメージはありませんでした。")
+
+ENDIF
+
+WHILE (CHKIMG("OPUS画像/BOOKING.bmp")=FALSE) //「bbb.bmp」が表示されるまで以下の処理
+
+SLEEP(1.5)
+
+WEND
+
+PATH = "OPUS画像/BOOKING.bmp"
+
+IFB CHKIMG(PATH)
+
+BTN(LEFT, CLICK, G_IMG_X+35, G_IMG_Y+10)
+
+ELSE
+
+MSGBOX(PATH + "と同じイメージはありませんでした。")
+
+ENDIF
+
+WHILE (CHKIMG("OPUS画像/UPDATE BOOKING MASTER.bmp")=FALSE) //「bbb.bmp」が表示されるまで以下の処理
+
+SLEEP(1)
+
+WEND
+
+PATH = "OPUS画像/UPDATE BOOKING MASTER.bmp"
+
+IFB CHKIMG(PATH)
+
+BTN(LEFT, CLICK, G_IMG_X+35, G_IMG_Y+10)
+
+ELSE
+
+MSGBOX(PATH + "と同じイメージはありませんでした。")
+
+ENDIF
+
+WHILE (CHKIMG("OPUS画像/UPDATE BOOKING MASTER VVD.bmp")=FALSE) //「bbb.bmp」が表示されるまで以下の処理
+
+SLEEP(1)
+
+WEND
+
+PATH = "OPUS画像/UPDATE BOOKING MASTER VVD.bmp"
+
+IFB CHKIMG(PATH)
+
+BTN(LEFT, CLICK, G_IMG_X+76, G_IMG_Y+10)
+
+ELSE
+
+MSGBOX(PATH + "と同じイメージはありませんでした。")
+
+ENDIF

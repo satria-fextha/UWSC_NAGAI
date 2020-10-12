@@ -1,0 +1,112 @@
+Call COMMON_OPUS.UWS
+call COMMON.UWS
+
+ExpVslCode = COPY(PARAM_STR[0],20,9)
+ImpVslCode = COPY(PARAM_STR[0],20,8) + "E"
+
+OPUS.OpenTab()
+
+sleep(1)
+
+KBD(VK_CTRL,DOWN)
+BTN(WHEEL,+5)
+sleep(1)
+BTN(WHEEL,-5)
+KBD(VK_CTRL,UP)
+
+PATH = "画像\神原\ActualSchedule\Vessel Operation.bmp"
+While CHKIMG(PATH) = False
+  Sleep(1)
+Wend
+BTN(LEFT, CLICK, G_IMG_X+80, G_IMG_Y+5)
+
+PATH = "画像\神原\ActualSchedule\ActualSchedule.bmp"
+While CHKIMG(PATH) = False
+  Sleep(1)
+Wend
+BTN(LEFT, CLICK, G_IMG_X+40, G_IMG_Y+5)
+
+PATH = "画像\神原\ActualSchedule\ActualScheduleCreation.bmp"
+While CHKIMG(PATH) = False
+  Sleep(1)
+Wend
+BTN(LEFT, CLICK, G_IMG_X+40, G_IMG_Y+5)
+   
+EXCEL = CREATEOLEOBJ("Excel.Application")
+//EXCEL.visible = True
+EXCEL.workbooks.open("\\126.0.0.42\代_共通\KAMBARA\ACTUAL VESSEL CONDITION\Actual.xlsx")
+ws = Excel.ActiveWorkbook.Activesheet
+sleep(1)
+LastRow = ws.Cells(ws.Rows.Count, "A").End(-4162).Row
+ExpVslName = COPY(PARAM_STR[0],20,4)
+VoyageNo =  COPY(PARAM_STR[0],24,5)
+SELECT ExpVslName
+CASE "KSCA"
+  VslFullName = "SCARLET ARROW"
+CASE "KORA"
+  VslFullName = "ORIENTAL ARROW"
+CASE "KCRA"
+  VslFullName = "CRYSTAL ARROW"
+SELEND
+FOR i = 2 to LastRow
+  IFB POS(VslFullName, ws.Cells(i,1).Value) <> 0 and POS(VoyageNo, ws.Cells(i,3).Value) <> 0 then
+    //MSGBOX(VslFullName + VoyageNo + "は表にあります")
+    Actuid=GetID("Actual SKD Creation","IEFrame")
+    SLEEP(1)
+    //SENDSTR(Actuid, "JPIMI", 5, True)
+    KBD(VK_J)
+    Sleep(0.2)
+    KBD(VK_P)
+    Sleep(0.2)
+    KBD(VK_I)
+    Sleep(0.2)
+    KBD(VK_M)
+    Sleep(0.2)
+    KBD(VK_I)
+    Sleep(0.2)
+    SENDSTR(Actuid, ExpVslName, 6, True)
+    SENDSTR(Actuid, COPY(PARAM_STR[0],24,4), 7, True)
+    SENDSTR(Actuid, COPY(PARAM_STR[0],28,1), 8, True)
+    PATH = "画像\神原\ActualSchedule\Retrive.bmp"
+    While CHKIMG(PATH) = False
+      Sleep(1)
+    Wend
+    BTN(LEFT, CLICK, G_IMG_X+40, G_IMG_Y+5)
+    //MSGBOX("マニュアルで「JPIMI」を入力し、RETRIVEをクリックしてください")
+    SLEEP(1.5)
+    SENDSTR(Actuid, OPUSFORMAT(COPY(ws.Cells(i,6).Value,1)), 17, True)
+    SENDSTR(Actuid, OPUSFORMAT(COPY(ws.Cells(i,7).Value,1)), 22, True)
+    SENDSTR(Actuid, OPUSFORMAT(COPY(ws.Cells(i,11).Value,1)), 27, True)
+    SENDSTR(Actuid, ws.Cells(i,14).Value, 37, True)
+    SENDSTR(Actuid, ws.Cells(i,15).Value, 40, True)
+    SENDSTR(Actuid, ws.Cells(i,17).Value, 43, True)
+    SENDSTR(Actuid, ws.Cells(i,18).Value, 45, True)
+    SENDSTR(Actuid, ws.Cells(i,19).Value, 48, True)
+    SENDSTR(Actuid, ws.Cells(i,20).Value, 51, True)
+    SENDSTR(Actuid, ws.Cells(i,21).Value, 53, True)
+    SENDSTR(Actuid, ws.Cells(i,22).Value, 38, True)
+    SENDSTR(Actuid, ws.Cells(i,23).Value, 41, True)
+    SENDSTR(Actuid, ws.Cells(i,25).Value, 44, True)
+    SENDSTR(Actuid, ws.Cells(i,26).Value, 46, True)
+    SENDSTR(Actuid, ws.Cells(i,27).Value, 49, True)
+    SENDSTR(Actuid, ws.Cells(i,28).Value, 52, True)
+    SENDSTR(Actuid, ws.Cells(i,29).Value, 54, True)
+    MSGBOX("内容に問題なければ「SAVE」をクリック")
+    Excel.QUIT
+    ScheduleList()
+    BREAK 1
+  ELSEIF i = LastRow + 1
+    //MSGBOX(VslFullName + VoyageNo + "は表にありません")
+  　Excel.QUIT
+    ScheduleList()
+  ENDIF
+NEXT
+
+FUNCTION OPUSFORMAT(TimeStr)
+  buf = TimeStr
+　Target = POS(":",buf)
+  Ifb Target = 13 Then
+    buf= copy(buf,1,11) + "0" + copy(buf,12)
+  EndIf
+  RESULT = copy(buf,1,4)+copy(buf,6,2)+copy(buf,9,2)+copy(buf,12,2)+copy(buf,15,2)
+FEND

@@ -1,0 +1,124 @@
+Call COMMON.UWS
+Call ExcelClass.UWS
+Call File.UWS
+
+start = Gettime()
+ExpVslCode = COPY(PARAM_STR[0],20,9)
+ImpVslCode = COPY(PARAM_STR[0],20,8) + "E"
+FolderName = COPY(PARAM_STR[0],1,10) + ImpVslCode
+
+ExcelClass.TASKKILL()
+
+Fukidasi(ImpVslCode + "フォルダ作成")
+Doscmd("mkdir ‪\\126.0.0.42\本社_外部\神原汽船マニフェスト\ARRIVAL\" + FolderName)
+Fukidasi("")
+n = GETDIR("\\126.0.0.42\本社_外部\神原汽船マニフェスト\ARRIVAL\"+ FolderName + "\", "*") // UWSCのフォルダを指定
+IFB n <> 0 then
+  FOR i = 0 TO (LENGTH(GETDIR_FILES) - 1)
+    File.TrashBox("\\126.0.0.42\本社_外部\神原汽船マニフェスト\ARRIVAL\"+ FolderName + "\" + GETDIR_FILES[i])
+  NEXT
+ENDIF
+From = "C:\Users\utkn009\Desktop\VBAバックアップ\印刷ツール.xlsm"
+To   = "\\126.0.0.42\本社_外部\神原汽船マニフェスト\ARRIVAL\"+ FolderName + "\印刷ツール.xlsm"
+File.CopyA(From, To)
+
+fukidasi("DoSystemで対象のシートを検索")
+ExcelObj= CREATEOLEOBJ("Excel.Application")
+ExcelObj.Visible = True
+ExcelObj.Workbooks.Open("\\126.0.0.42\代_共通\KAMBARA\DOsystem.xlsm")
+WB = ExcelObj.ActiveWorkbook
+WB.Sheets(1).cells(1,1).value = ImpVslCode
+ExcelObj.Run ("UWSC_TargetSheet_Activate")
+DOid = GetID("DOsystem.xlsm - Excel","XLMAIN")
+CTRLWIN(DOid, TOPMOST)
+CTRLWIN(DOid, MAX)
+CTRLWIN(DOid, NOTOPMOST)
+
+Fukidasi("Fax送信中")
+WS = ExcelObj.ActiveWorkbook.Activesheet
+LastRow = WS.Cells(WS.Rows.Count, "K").End(-4162).Row
+For i = 2 to LastRow
+  Fukidasi("処理中" + i + "/" + LastRow + "件")
+  BLNo = WS.Cells(i, "K").Value
+  Fax1 = FaxNoCheck(WS.Cells(i, "AB").Value)
+  Fax2 = FaxNoCheck(WS.Cells(i, "AC").Value)
+  n = GETDIR("\\126.0.0.42\代_共通\KAMBARA\ARRIVAL NOTICE\" + ImpVslCode, "*" + BLNo + "*" + ".pdf")
+  //Msgbox(BLNo + "は" + n + "個ありました")
+  Ifb n <> 0 then
+     //Msgbox("対象ファイル名は:" + GETDIR_FILES[0])
+  Endif
+  //アライバルPDFファイルの有無を確認。「送信済み」と記載されていたら何もしない。
+  Ifb n = 0 And WS.Cells(i, "AE").Value <> "送信済み" then
+     WS.Cells(i, "AE").Value = "アライバル.pdf無し"
+  Elseif  n <> 0 And WS.Cells(i, "AE").Value <> "送信済み" then
+     WS.Cells(i, "AE").Value = ""
+  Endif
+  //アライバルPDFも存在しており、「送信済み」ではないBLNo.のアライバルを送信する
+  Ifb WS.Cells(i, "AE").Value <> "アライバル.pdf無し" And WS.Cells(i, "AE").Value <> "送信済み"
+     Ifb Fax1 <> "" And POS("奈雅井",Fax1) = 0 then
+       Cont = GETDIR("\\126.0.0.42\代_共通\KAMBARA\ARRIVAL NOTICE\" + ImpVslCode, "*" + BLNo + "*" + ".pdf")
+       //PDF.FaxSend("\\126.0.0.42\代_共通\KAMBARA\ARRIVAL NOTICE\" + FolderName, GETDIR_FILES[0],"<2>" + Fax1)
+       Fukidasi("処理中" + i + "/" + LastRow + "件")
+       NewName = Copy(GETDIR_FILES[0],1,Length(GETDIR_FILES[0])-4) + "_" + Fax1 + ".pdf"
+       From = "\\126.0.0.42\代_共通\KAMBARA\ARRIVAL NOTICE\" + ImpVslCode + "\" + GETDIR_FILES[0]
+       To   = "\\126.0.0.42\代_共通\KAMBARA\ARRIVAL NOTICE\" + ImpVslCode + "\" + NewName
+       File.Rename(From, To)
+     elseif POS("奈雅井",Fax1) > 0
+       Cont = GETDIR("\\126.0.0.42\代_共通\KAMBARA\ARRIVAL NOTICE\" + ImpVslCode, "*" + BLNo + "*" + ".pdf")
+       NewName = Copy(GETDIR_FILES[0],1,Length(GETDIR_FILES[0])-4) + "_" + Fax1 + ".pdf"
+       From = "\\126.0.0.42\代_共通\KAMBARA\ARRIVAL NOTICE\" + ImpVslCode + "\" + GETDIR_FILES[0]
+       To   = "\\126.0.0.42\本社_外部\神原汽船マニフェスト\ARRIVAL\"+ FolderName + "\" + NewName
+       File.CopyA(From, To)
+       To = "\\126.0.0.42\代_共通\KAMBARA\ARRIVAL NOTICE\" + ImpVslCode + "\" + NewName
+       File.Rename(From, To)
+     Endif
+     sleep(2)
+     Ifb Fax2<>"" And POS("奈雅井",Fax2) = 0 then
+       Cont = GETDIR("\\126.0.0.42\代_共通\KAMBARA\ARRIVAL NOTICE\" + ImpVslCode, "*" + BLNo + "*" + ".pdf")
+       //PDF.FaxSend("\\126.0.0.42\代_共通\KAMBARA\ARRIVAL NOTICE\" + FolderName, GETDIR_FILES[0] ,"<2>" + Fax2)
+       Fukidasi("処理中" + i + "/" + LastRow + "件")
+       NewName = Copy(GETDIR_FILES[0],1,Length(GETDIR_FILES[0])-4) + "_" + Fax2 + ".pdf"
+       From = "\\126.0.0.42\代_共通\KAMBARA\ARRIVAL NOTICE\" + ImpVslCode + "\" + GETDIR_FILES[0]
+       To   = "\\126.0.0.42\代_共通\KAMBARA\ARRIVAL NOTICE\" + ImpVslCode + "\" + NewName
+       File.Rename(From, To)
+       buf = GETDIR("\\126.0.0.42\本社_外部\神原汽船マニフェスト\ARRIVAL\"+ FolderName, "*" + BLNo + "*" + ".pdf")
+       Ifb buf <> 0 then
+          From = "\\126.0.0.42\本社_外部\神原汽船マニフェスト\ARRIVAL\"+ FolderName + "\" + GETDIR_FILES[0]
+          To = "\\126.0.0.42\本社_外部\神原汽船マニフェスト\ARRIVAL\"+ FolderName + "\" + NewName
+          File.Rename(From, To)
+       Endif
+     Endif
+     sleep(1)
+     WS.Cells(i, "AE").Value = "送信済み"
+　Endif
+Next
+Fukidasi()
+Sleep(1)
+Kbd(VK_SHIFT,UP)
+Kbd(VK_CTRL,UP)
+Sleep(1)
+stop = Gettime()
+TimeResult = stop - start
+Twitter.tweet(PARAM_STR[0] + "<#CR>Fax送信完了しました<#CR>" + "所要時間:" + TimeResult)
+Msgbox("完了")
+//______________________________________________________________________
+Function FaxNoCheck(FaxNo)
+   Select FaxNo
+       Case ""
+          Result = ""
+       Case "奈雅井"
+          Result = "奈雅井"
+       Case "奈雅井+"
+          Result = "奈雅井+"
+       Case "西松"
+          Result = "0955-23-3197"
+       Case "西松+"
+          Result = "0955-23-3197"
+       Case "海陸"
+          Result = "0955-20-7288"
+       Case "海陸+"
+          Result = "0955-20-7288"
+       DEFAULT
+          Result = FaxNo
+   Selend
+Fend 

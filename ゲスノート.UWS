@@ -1,0 +1,4 @@
+EXCEL = CREATEOLEOBJ("Excel.Application")
+EXCEL.visible = True
+EXCEL.workbooks.open("\\126.0.0.42\個人(フル)\田中智也\1.田中\12.H-A\ゲスノート.xlsx")
+

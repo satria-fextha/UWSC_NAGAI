@@ -1,0 +1,162 @@
+call COMMON.UWS
+
+FUKIDASI("D/Oブック保存")
+COM_ERR_IGN
+Excel2 = CreateOLEObj("Excel.Application")
+Excel2 = GETACTIVEOLEOBJ("Excel.Application")
+Excel2.visible = True
+wb = Excel2.ActiveWorkbook
+wb.Save
+wb.close
+COM_ERR_RET
+FUKIDASI("")
+
+FUKIDASI("タスクキル")
+//タスクキル
+DosCmd("TASKKILL /F /IM excel.exe")
+for i = 0 to GETALLWIN()-1
+  ifb POS("Excel",　STRCONV(STATUS(ALL_WIN_ID[i], ST_PATH),SC_LOWERCASE)) <>  0 and POS("DOsystem",　STRCONV(STATUS(ALL_WIN_ID[i], ST_PATH),SC_LOWERCASE)) =  0 then 
+    CTRLWIN(ALL_WIN_ID[i], CLOSE)
+  endif
+next
+FUKIDASI("")
+
+FUKIDASI("Web台帳検索中")
+For i = 0 To GetAllWin() - 1
+  IF POS("Internet Explorer",Status(ALL_WIN_ID[i], ST_TITLE)) > 0 then
+    //sleep(0.8)
+    ID = GetID(Status(ALL_WIN_ID[i], ST_TITLE),"IEFrame")//OPUSのIDを入手
+    sleep(0.8)
+    CTRLWIN(ID, TOPMOST)
+    CTRLWIN(ID, SHOW)
+    CTRLWIN(id, NOTOPMOST)
+    sleep(0.8)
+    CTRLWIN(ID, MAX)
+    CTRLWIN(ID, ACTIVATE)
+    Ifb POS("Webコンテナ台帳",Status(ALL_WIN_ID[i], ST_TITLE)) = 0 then
+      j = 1
+      repeat
+        sckey(0,vk_ctrl,VK_TAB)
+        sleep(0.8)
+        ifb status(getid("Webコンテナ台帳"),st_active)=true then
+          GOtoMENU()
+          break 2
+        endif
+        j = j + 1
+      until j = GETITEM(ID, ITM_TAB)
+      break 1
+    else
+      GOtoMENU()
+      break 1
+    endif
+  endif
+next
+
+sleep(0.8)
+
+ID = GetID("Webコンテナ台帳","IEFrame")
+if ID = -1 then
+  IE = CreateOLEObj("InternetExplorer.Application")
+  IE.Visible = True
+  IE.Navigate("https://www.seiko-portit.com/Login.asp")//OPUSを開く
+  sleep(0.8)
+  ID = GetID("Webコンテナ台帳","IEFrame")//OPUSのIDを入手
+  CTRLWIN(ID, MAX)
+endif
+
+sleep(0.8)
+
+IFB CHKBTN(ID,"ログイン") <> -1 THEN
+  //MSGBOX("ログイン画面です")
+  sleep(0.8)
+  SENDSTR(ID, "ngi3023", 4, True)
+  SENDSTR(ID, "3023", 5, True)
+  CLKITEM(ID, "ログイン", CLK_BTN)
+ELSE
+  //MSGBOX("メニュー画面です")
+  //CLKITEM(ID, "対査照会・登録",CLK_ACC)
+ENDIF
+
+Sleep(0.8)
+FUKIDASI("")
+
+FUKIDASI("D/Oブック起動＆台帳入力")
+Excel = CreateOLEObj("Excel.Application")
+Excel.visible = True
+EXCEL.workbooks.open("\\126.0.0.42\代_共通\KAMBARA\DOsystem.xlsm")
+ws = Excel.ActiveWorkbook.Activesheet
+DOid = GetID("DOsystem.xlsm - Excel","XLMAIN")
+CTRLWIN(DOid, TOPMOST)
+CTRLWIN(DOid, MAX)
+CTRLWIN(DOid, NOTOPMOST)
+ifb DOid <> -1 then
+  最終行 = ws.Cells(ws.Rows.Count, "A").End(-4162).Row
+  Dim リリースBL[最終行]
+  For i = 2 to 最終行
+    Ifb ws.Cells(i,8).Value = "OK" and ws.Cells(i,9).Value = "" then 
+      リリースBL[i] = ws.Cells(i,11).Value
+    Endif
+    Ifb リリースBL[i] <> "" then
+      YESorNO(リリースBL[i])
+      Sleep(0.5)
+      ws.Cells(i,9).Value = "OK"
+    Endif
+  Next
+ELSE
+  MSGBOX("神原のDOsystemを開いてください")
+ENDIF
+GOtoMENU()
+FUKIDASI("")
+Msgbox("入力完了！")
+
+//_____________________________________________________________________________________________________________________________________________________________________________________________________________
+PROCEDURE GOtoMENU()
+ID = GetID("Webコンテナ台帳","IEFrame")//OPUSのIDを入手
+IFB ID <> -1 AND CHKBTN(ID,"メニュー") <> -1 THEN
+  CLKITEM(ID, "メニュー", CLK_BTN)
+ENDIF
+FEND
+
+//_____________________________________________________________________________________________________________________________________________________________________________________________________________
+PROCEDURE YESorNO(BLNo)
+ID = GetID("Webコンテナ台帳","IEFrame")
+CTRLWIN(ID, TOPMOST)
+CTRLWIN(ID, MAX)
+CTRLWIN(ID, NOTOPMOST)
+CLKITEM(ID, "対査照会・登録",CLK_ACC)
+SLEEP(0.8)
+SENDSTR(ID, "KKCL" + BLNo, 4, TRUE)
+SLEEP(0.8)
+CLKITEM(ID, "　検索　", CLK_ACC)
+YES = "画像/WEB台帳/DO/Y.bmp"
+NO = "画像/WEB台帳/DO/N.bmp"
+NOorYES = "画像/WEB台帳/DO/NorY.bmp"
+REPEAT
+  SLEEP(1)
+UNTIL CHKIMG(YES)=TRUE OR CHKIMG(NO)=TRUE
+IFB CHKIMG(YES)=TRUE
+  //MSGBOX("Yです")
+  GOtoMENU()
+ELSEIF CHKIMG(NO)=TRUE
+  //MSGBOX("Nです")
+  BTN(LEFT, CLICK, G_IMG_X+67, G_IMG_Y+6)
+　While CHKIMG(NOorYES) = FALSE
+    Sleep(1)
+  Wend
+  BTN(LEFT, CLICK, G_IMG_X+7, G_IMG_Y+9)
+  CLKITEM(ID, "　登録　", CLK_ACC)
+  ClickOK()
+ELSE
+ MSGBOX("何も見つかりません")
+ENDIF
+GOtoMENU()
+FEND
+
+//_____________________________________________________________________________________________________________________________________________________________________________________________________________
+PROCEDURE ClickOK()
+OK = "画像/WEB台帳/DO/OK.bmp"
+While CHKIMG(OK) = FALSE
+  Sleep(1)
+Wend
+BTN(LEFT, CLICK, G_IMG_X+36, G_IMG_Y+9)
+FEND

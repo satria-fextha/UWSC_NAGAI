@@ -1,0 +1,19 @@
+IE = CreateOLEObj("InternetExplorer.Application")
+IE.Visible = True
+IE.Navigate("https://www.seiko-portit.com/Login.asp")
+//BusyWait(IE)
+ 
+sleep(3)
+H2  = IEGetSrc(IE, "h2")
+body    = IEGetSrc(IE, "TBODY")
+ 
+PRINT "h2:"　+ h2
+PRINT "body:" + body
+ 
+ 
+//------
+//Procedure BusyWait(ie)
+//    repeat
+//        Sleep(0.2)
+//    until (! ie.busy) and (ie.readyState=4)
+////Fend

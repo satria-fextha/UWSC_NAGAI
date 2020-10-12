@@ -1,0 +1,68 @@
+Call COMMON_OPUS.UWS
+Call File.UWS
+Call ImageClass.UWS
+Call ExcelClass.UWS
+call COMMON.UWS
+
+ExpVslCode = COPY(PARAM_STR[0],20,9)//---KORA0102W
+ImpVslCode = COPY(PARAM_STR[0],20,8) + "E"//---KORA0102E
+DoSheetName = COPY(PARAM_STR[0],6,2) + COPY(PARAM_STR[0],9,2) + ImpVslCode//---1006KSCA0118E
+
+ExcelClass.TASKKILL()
+Sleep(1)
+OPUS.OpenTab()
+Sleep(1)
+Image.MidClick("画像\神原\VslAddToDosystem\ServiceManagement.bmp")
+Sleep(1)
+Image.MidClick("画像\神原\VslAddToDosystem\Report.bmp")
+Sleep(1)
+Image.MidClick("画像\神原\VslAddToDosystem\BookingStatusReport.bmp")
+PATH = "画像\神原\VslAddToDosystem\Default.bmp"
+While CHKIMG(PATH) = False
+  Sleep(1)
+Wend
+Sleep(1)
+BkgStsRepID=GetID("Booking Status Report - Internet Explorer","IEFrame")
+Sleep(1)
+SENDSTR(BkgStsRepID, "kei", 14, True)
+SENDSTR(BkgStsRepID, ImpVslCode, 15, True)
+SENDSTR(BkgStsRepID, "JPIMI", 19, True)
+Sleep(1)
+Image.MidClick("画像\神原\VslAddToDosystem\Retrive.bmp")
+CTRLWIN(BkgStsRepID, MAX)
+n = GETDIR("\\126.0.0.42\代_共通\KAMBARA\Booking Status Report\", "*xlsx*") // UWSCのフォルダを指定
+FUKIDASI("既存ファイル削除中")
+IFB n <> 0 then
+  FOR i = 0 TO (LENGTH(GETDIR_FILES) - 1)
+    File.TrashBox("\\126.0.0.42\代_共通\KAMBARA\Booking Status Report\" + GETDIR_FILES[i])
+  NEXT
+ENDIF
+Sleep(3)
+Image.MidClick("画像\神原\VslAddToDosystem\DownExcel.bmp")
+FUKIDASI("エクセル処理中")
+Sleep(3)
+Excel = CreateOLEObj("Excel.Application")
+Excel = GETACTIVEOLEOBJ("Excel.Application")
+WB = Excel.ActiveWorkbook
+ListID = GetID("Book","XLMAIN")
+WB.SaveAs("\\126.0.0.42\代_共通\KAMBARA\Booking Status Report\" + DoSheetName + ".xlsx")
+CTRLWIN(ListID,Close)
+CTRLWIN(BkgStsRepID, Close)
+Sleep(0.5)
+ExcelClass.TASKKILL()
+Sleep(0.5)
+EXCEL = CREATEOLEOBJ("Excel.Application")
+EXCEL.visible = True
+EXCEL.workbooks.open("\\126.0.0.42\代_共通\KAMBARA\DOsystem.xlsm")
+WB = Excel.ActiveWorkbook
+Sleep(0.5)
+Excel.Run ("シート作成")
+Sleep(0.5)
+Excel.Run ("FAX番号入力")
+Sleep(0.5)
+WB.Save
+Sleep(0.5)
+WB.Close
+FUKIDASI()
+ExcelClass.TASKKILL()
+msgbox("完了")

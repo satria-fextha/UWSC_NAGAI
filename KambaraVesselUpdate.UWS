@@ -1,0 +1,171 @@
+Call File.UWS
+Call COMMON_OPUS.UWS
+call COMMON.UWS
+
+FUKIDASI("Book1.xlsx削除")
+//VESSEL SCHEDULEにもともと入ってるExcelファイルを削除。残っていたらUWSCで操作不可の上書きの問い合わせが出る
+n = GETDIR("\\126.0.0.42\代_共通\KAMBARA\VESSEL SCHEDULE\", "*xlsx*")
+IFB n <> 0 then
+  FOR i = 0 TO (LENGTH(GETDIR_FILES) - 1)
+    File.TrashBox("\\126.0.0.42\代_共通\KAMBARA\VESSEL SCHEDULE\" + GETDIR_FILES[i])
+  NEXT
+ENDIF
+
+OPUS.OpenTab()
+Sleep(1)
+KBD(VK_CTRL,DOWN)
+BTN(WHEEL,+5)
+sleep(1)
+BTN(WHEEL,-5)
+KBD(VK_CTRL,UP)
+
+PATH = "画像\神原\VesselUpdate\VesselSchedule.bmp"
+FUKIDASI(PATH + "検索中")
+While CHKIMG(PATH) = False
+  Sleep(1)
+Wend
+BTN(LEFT, CLICK, G_IMG_X+50, G_IMG_Y+5)
+
+PATH = "画像\神原\VesselUpdate\VSLSKD.bmp"
+FUKIDASI(PATH + "検索中")
+While CHKIMG(PATH) = False
+  Sleep(1)
+Wend
+BTN(LEFT, CLICK, G_IMG_X+15, G_IMG_Y+5)
+
+PATH = "画像\神原\VesselUpdate\VSLSKDinq.bmp"
+FUKIDASI(PATH + "検索中")
+While CHKIMG(PATH) = False
+  Sleep(1)
+Wend
+BTN(LEFT, CLICK, G_IMG_X+5, G_IMG_Y+5)
+
+PATH = "画像\神原\VesselUpdate\VSLSKDinqbyPort.bmp"
+FUKIDASI(PATH + "検索中")
+While CHKIMG(PATH) = False
+  Sleep(1)
+Wend
+BTN(LEFT, CLICK, G_IMG_X+5, G_IMG_Y+5)
+
+PATH = "画像\神原\VesselUpdate\OPUS.bmp"
+FUKIDASI(PATH + "検索中")
+While CHKIMG(PATH) = False
+  Sleep(1)
+Wend
+BTN(LEFT, CLICK, G_IMG_X+5, G_IMG_Y+5)
+
+SLEEP(1)
+
+GETTIME()
+
+FirstMonth = REPLACE(FORMAT(((G_TIME_MM - 6) MOD 12), 2), " ", "0")
+IFB FirstMonth = "00" THEN
+  FirstMonth = "12"
+  FirstDate = G_TIME_YY + CEIL((G_TIME_MM - 6) / 12 - 1) + FirstMonth  + "01"
+ELSE
+  FirstDate = G_TIME_YY + CEIL((G_TIME_MM - 6) / 12 - 1) + FirstMonth  + "01"
+ENDIF
+
+EndMonth = REPLACE(FORMAT(((G_TIME_MM + 6) MOD 12), 2), " ", "0")
+IFB EndMonth = "00" THEN
+  EndMonth = "12"
+  buf = G_TIME_YY + CEIL((G_TIME_MM + 6) / 12 - 1) + EndMonth + "01"
+  EndDate = GETTIME(-1, buf)
+  EndDate = G_TIME_YY4 + G_TIME_MM2 + G_TIME_DD2
+ELSE
+  buf = G_TIME_YY + CEIL((G_TIME_MM + 6) / 12 - 1) + EndMonth + "01"
+  EndDate = GETTIME(-1, buf)
+  EndDate = G_TIME_YY4 + G_TIME_MM2 + G_TIME_DD2
+ENDIF
+
+VSLid=GetID("VSL SKD Inquiry by Port","IEFrame")
+SENDSTR(VSLid, FirstDate, 2, True)
+SENDSTR(VSLid, EndDate, 3, True)
+SENDSTR(VSLid, "JPIMI", 4, True)
+
+SLEEP(1)
+
+PATH = "画像\神原\VesselUpdate\Retrive.bmp"
+FUKIDASI(PATH + "検索中")
+While CHKIMG(PATH) = False
+  Sleep(1)
+Wend
+BTN(LEFT, CLICK, G_IMG_X+20, G_IMG_Y+8)
+SLEEP(2.5)
+
+PATH = "画像\神原\VesselUpdate\DownExcel.bmp"
+FUKIDASI(PATH + "検索中")
+While CHKIMG(PATH) = False
+  Sleep(1)
+Wend
+BTN(LEFT, CLICK, G_IMG_X+20, G_IMG_Y+8)
+BTN(LEFT, CLICK, G_IMG_X+20, G_IMG_Y+8)
+
+SLEEP(2.5)
+FUKIDASI("Excel処理開始")
+Excel = CreateOLEObj("Excel.Application")
+Excel = GETACTIVEOLEOBJ("Excel.Application")
+ws = Excel.ActiveWorkbook.Activesheet
+DOid = GetID("Book","XLMAIN")
+
+CTRLWIN(DOid, TOPMOST)
+CTRLWIN(DOid, MAX)
+CTRLWIN(DOid, NOTOPMOST)
+
+CTRLWIN(VSLid, CLOSE)
+
+CTRLWIN(DOid, TOPMOST)
+CTRLWIN(DOid, MAX)
+CTRLWIN(DOid, NOTOPMOST)
+
+sleep(1)
+BTN(LEFT,CLICK,400,300)
+
+sleep(1)
+KBD(VK_CTRL,DOWN)
+sleep(0.5)
+KBD(VK_A)
+sleep(0.5)
+KBD(VK_CTRL,UP)
+sleep(0.5)
+//SCKEY(DOid,VK_CTRL, VK_A)
+
+sleep(1)
+KBD(VK_ALT,DOWN)
+sleep(0.5)
+KBD(VK_H)
+sleep(0.5)
+KBD(VK_M)
+sleep(0.5)
+KBD(VK_U)
+sleep(0.5)
+KBD(VK_ALT,UP)
+//SCKEY(DOid,VK_ALT, VK_H, VK_M, VK_U)
+
+sleep(1)
+ws.range("F3").Select
+
+sleep(1)
+KBD(VK_ALT,DOWN)
+sleep(0.5)
+KBD(VK_A)
+sleep(0.5)
+KBD(VK_S)
+sleep(0.5)
+KBD(VK_A)
+sleep(0.5)
+KBD(VK_ALT,UP)
+//SCKEY(DOid,VK_ALT, VK_A, VK_S, VK_A)
+sleep(1)
+EXCEL.ActiveWorkbook.SaveAS("\\126.0.0.42\代_共通\KAMBARA\VESSEL SCHEDULE\Book1.xlsx")
+sleep(1)
+
+EXCEL.ActiveWorkbook.Close
+Excel.QUIT
+
+FUKIDASI("画面を閉じる")
+CTRLWIN(VSLid,CLOSE)
+
+
+FUKIDASI("")
+MSGBOX("完了")

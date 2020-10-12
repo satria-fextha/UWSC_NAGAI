@@ -1,0 +1,3 @@
+CALL File.UWS//--call ファイル名
+From = "\\126.0.0.42\代_共通\KAMBARA\ARRIVAL NOTICE\test\コピーOverdue_over_21_days_report_week_39.xlsx"
+File.TrashBox(From)//---クラス名.関数名()

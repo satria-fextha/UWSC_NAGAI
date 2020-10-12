@@ -1,0 +1,83 @@
+// [Class] ファイル・ディレクトリ の 移動･複製･削除･ゴミ箱･名前変更
+// 提供は とも さん です。
+
+// 2007/10/01 新規作成
+// 2008/08/30 オプション指定を文字列で渡せるようにした。
+
+//	ディレクトリ 001 を 002 に名前変更し、ディレクトリ Log に移動する
+//	From = "\\SiromasaPC\Now\001"
+//	To   = "\\SiromasaPC\Log\002"
+//	File.Rename(From, To)	// 名前変更(＆移動)
+
+
+//	From = "C:\Test.uws"
+//	To   = "C:\Temp"
+//	File.Move(From, To)		// 移動
+//	File.CopyA(From, To)	// 複製
+//	File.Delete(From)		// 削除
+//	File.TrashBox(From)		// ゴミ箱へ移動
+//	File.Rename(From, To)	// 名前変更(＆移動)
+
+//				  全て「はい」・ディレクトリ作成の確認を省く・ウィンドウを出さない
+//	Dim FlagStr = "FOF_NOCONFIRMATION or FOF_NOCONFIRMMKDIR or FOF_SILENT"
+//	File.Delete(From, FlagStr)	// 削除
+
+////////////////////////////////////////////////////////////////////////////////
+//	ファイル・ディレクトリ の 移動･複製･削除･ゴミ箱･名前変更
+Class File
+	DEF_DLL SHFileOperationA({HWND, UINT, var pchar, var pchar, Long, BOOL, Long, var String}): Long: Shell32.dll	// Shell32.dll Version 4.00 以降
+	Const FO_MOVE		= $0001;	// 移動
+	Const FO_COPY		= $0002;	// コピー
+	Const FO_DELETE		= $0003;	// 削除
+	Const FO_RENAME		= $0004;	// 名前変更
+	Const FOF_MULTIDESTFILES		= $0001;	// 複数の複写先を指定する
+	Const FOF_CONFIRMMOUSE			= $0002;	// 現在は使用されません。
+	Const FOF_SILENT				= $0004;	// 進行状況画面を表示しない
+	Const FOF_RENAMEONCOLLISION		= $0008;	// 重複しないファイル名を自動的に作成する
+	Const FOF_NOCONFIRMATION		= $0010;	// 表示されるダイアログボックスに「すべてはい」を選択
+	Const FOF_WANTMAPPINGHANDLE		= $0020;	// FOF_RENAMEONCOLLISION が指定されていて、同じファイル名が存在したために新しいファイル名がつけられた場合に、古い名前と新しい名前を含むマッピングオブジェクトのハンドルを hNameMappings メンバに格納します。
+	Const FOF_ALLOWUNDO				= $0040;	// 削除時にゴミ箱に捨てる
+	Const FOF_FILESONLY				= $0080;	// ワイルドカード指定時にディレクトリを含まない
+	Const FOF_SIMPLEPROGRESS		= $0100;	// 進行状況画面にファイル名を表示しない
+	Const FOF_NOCONFIRMMKDIR		= $0200;	// 新しいディレクトリを作成する必要がある場合に、作成するかどうかの確認をしません。
+	Const FOF_NOERRORUI				= $0400;	// エラー時ダイアログを表示しない
+	Const FOF_NOCOPYSECURITYATTRIBS	= $0800;	// Shell32.dll Version 4.71 以降： ファイルのセキュリティ属性がコピーされないようにします。
+	Const FOF_NORECURSION			= $1000;	// ローカルディレクトリのみに操作を行ないます。サブディレクトリに対して再帰的に操作を行ないません。
+	Const FOF_NO_CONNECTED_ELEMENTS	= $2000;	// Windows Me/2000 以降： グループとして接続されているファイルを移動しません。指定されたファイルのみを移動します。
+	Const FOF_WANTNUKEWARNING		= $4000;	// Windows Me/2000 以降： ごみ箱に入れるのではない削除操作の際にファイルが削除されるときに警告をします。
+	Const FOF_NORECURSEREPARSE		= $8000;	// Windows XP 以降： リパースポイントをコンテナではなくオブジェクトとして扱います。
+
+	DEF_DLL PathRemoveBackslashA(var String) :String :ShlwApi.DLL	// バッファを使用する API
+
+	// 移動
+	Procedure Move(From, To, FlagStr = "FOF_NOCONFIRMATION or FOF_NOCONFIRMMKDIR")
+		PathRemoveBackslashA(From)
+		SHFileOperationA(0, FO_MOVE, From + ChrB($00), To + ChrB($00), Eval(FlagStr), 0, 0, "")
+	FEnd
+
+	// 複製
+	Procedure CopyA(From, To, FlagStr = "FOF_NOCONFIRMATION or FOF_NOCONFIRMMKDIR")
+		PathRemoveBackslashA(From)
+		Dim BO = 0
+		SHFileOperationA(0, FO_COPY, From + ChrB($00), To + ChrB($00), Eval(FlagStr), BO, 0, "")
+	FEnd
+
+	// 削除
+	Procedure Delete(From, FlagStr = "FOF_NOCONFIRMATION")
+		PathRemoveBackslashA(From)
+		SHFileOperationA(0, FO_DELETE, From + ChrB($00), "", Eval(FlagStr), 0, 0, "")
+	FEnd
+
+	// ゴミ箱へ移動
+	Procedure TrashBox(From, FlagStr = "FOF_ALLOWUNDO or FOF_NOCONFIRMATION")
+		PathRemoveBackslashA(From)
+		SHFileOperationA(0, FO_DELETE, From + ChrB($00), "", Eval(FlagStr), 0, 0, "")
+	FEnd
+
+	// 名前変更(＆移動)
+	Procedure Rename(From, To, FlagStr = "FOF_NOCONFIRMATION")
+		PathRemoveBackslashA(From)
+		SHFileOperationA(0, FO_MOVE, From + ChrB($00), To + ChrB($00), Eval(FlagStr), 0, 0, "")
+	FEnd
+
+EndClass
